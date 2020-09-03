@@ -33,6 +33,18 @@ class AsciiMol:
             key = self.stdscr.getch()
         running = True
         if len(keys) > 0:
+            if curses.KEY_DOWN in keys:
+                self.renderer.rotate(1)
+                self.sig_changed = self.renderer.draw_scene()
+            if curses.KEY_UP in keys:
+                self.renderer.rotate(-1)
+                self.sig_changed = self.renderer.draw_scene()
+            if curses.KEY_LEFT in keys:
+                self.renderer.rotate(2)
+                self.sig_changed = self.renderer.draw_scene()
+            if curses.KEY_RIGHT in keys:
+                self.renderer.rotate(-2)
+                self.sig_changed = self.renderer.draw_scene()
             if 43 in keys:
                 self.renderer.zoom += 0.1
                 self.sig_changed = self.renderer.draw_scene()
