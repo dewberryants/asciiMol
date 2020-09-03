@@ -23,7 +23,7 @@ class AsciiMol:
             for j in range(curses.COLS):
                 self.stdscr.addstr(i, j, content[i][j])
         # Default status bar (navigation)
-        self.stdscr.addstr(curses.LINES - 1, 0, " [Q] Quit")
+        self.stdscr.addstr(curses.LINES - 1, 0, " [Q]uit  [P]erspective [+-] Zoom (%f)" % self.renderer.zoom)
 
     def _on_update(self):
         keys = []
@@ -33,6 +33,12 @@ class AsciiMol:
             key = self.stdscr.getch()
         running = True
         if len(keys) > 0:
+            if 43 in keys:
+                self.renderer.zoom += 0.1
+                self.sig_changed = self.renderer.draw_scene()
+            if 45 in keys:
+                self.renderer.zoom -= 0.1
+                self.sig_changed = self.renderer.draw_scene()
             # Q or q quits from anywhere, for now
             if 81 in keys or 113 in keys:
                 running = False
@@ -98,7 +104,7 @@ class _Config:
             work = line.strip().split()
             try:
                 sym.append(work[0])
-                pos.append([work[1], work[2], work[3]])
+                pos.append([float(work[1]), float(work[2]), float(work[3])])
             except IndexError:
                 print("XYZ FORMAT ERROR: Line '%s' is too short." % line)
                 return False, None, None
