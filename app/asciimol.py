@@ -22,8 +22,13 @@ class AsciiMol:
         for i in range(curses.LINES - 1):
             for j in range(curses.COLS):
                 self.stdscr.addstr(i, j, content[i][j])
-        # Default status bar (navigation)
-        self.stdscr.addstr(curses.LINES - 1, 0, " [Q]uit  [P]erspective [+-] Zoom (%f)" % self.renderer.zoom)
+
+    def draw_navbar(self):
+        x, y, z = self.renderer.rotcounter
+        ztoggle_str = "Z" if self.renderer.ztoggle else "Y"
+        self.stdscr.addstr(curses.LINES - 1, 0,
+                           (" [Q]uit  [R]eset View [+-] Zoom (%f) [↔↕] Rotate (%d, %d, %d) [Z] ↔ Y/Z rotation (%s)"
+                            % (self.renderer.zoom, x, y, z, ztoggle_str))[:curses.COLS - 1])
 
     def _on_update(self):
         keys = []
@@ -51,11 +56,22 @@ class AsciiMol:
             if 45 in keys:
                 self.renderer.zoom -= 0.1
                 self.sig_changed = self.renderer.draw_scene()
+            if 82 in keys or 114 in keys:
+                self.renderer.reset_view()
+                self.sig_changed = self.renderer.draw_scene()
+            if 90 in keys or 122 in keys:
+                self.renderer.ztoggle = not self.renderer.ztoggle
+                self.draw_navbar()
             # Q or q quits from anywhere, for now
             if 81 in keys or 113 in keys:
                 running = False
+        if curses.is_term_resized(self.renderer.height, self.renderer.width):
+            curses.update_lines_cols()
+            self.renderer.resize(curses.LINES, curses.COLS)
+            self.sig_changed = self.renderer.draw_scene()
         if self.sig_changed:
             self._redraw()
+            self.draw_navbar()
         return running
 
     def _mainloop(self, main_screen):
@@ -69,9 +85,12 @@ class AsciiMol:
         self.stdscr.nodelay(True)
         running = True
         while running:
-            # Running at 25 fps
-            sleep(0.04)
-            running = self._on_update()
+            try:
+                # Running at 25 fps
+                sleep(0.04)
+                running = self._on_update()
+            except (KeyboardInterrupt, SystemError, SystemExit):
+                running = False
 
     def run(self):
         if self.config.proceed:

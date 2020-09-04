@@ -8,8 +8,10 @@ class Renderer:
         self.pos, self.sym = np.array(config.coordinates), config.symbols
         self.content = [[" "] * self.width for n in range(self.height - 1)]
         self.zbuffer = [[10000.0] * self.width for n in range(self.height - 1)]
+        self.ztoggle = True
         self.zoom = 1.0
         self.rot = np.identity(3)
+        self.rotcounter = [0, 0, 0]
         self.draw_scene()
 
     def draw_scene(self):
@@ -27,12 +29,49 @@ class Renderer:
     def rotate(self, direction):
         if direction == 1:
             self.rot = np.matmul(self.rot, [[1.0, 0.0, 0.0], [0.0, 0.9962, -0.0872], [0.0, 0.0872, 0.9962]])
+            if self.rotcounter[0] + 5 > 360:
+                self.rotcounter[0] = 0
+            self.rotcounter[0] += 5
         elif direction == -1:
             self.rot = np.matmul(self.rot, [[1.0, 0.0, 0.0], [0.0, 0.9962, 0.0872], [0.0, -0.0872, 0.9962]])
-        if direction == 2:
+            if self.rotcounter[0] - 5 < 0:
+                self.rotcounter[0] = 360
+            self.rotcounter[0] -= 5
+        elif direction == 2 and self.ztoggle:
             self.rot = np.matmul(self.rot, [[0.9962, -0.0872, 0.0], [0.0872, 0.9962, 0.0], [0.0, 0.0, 1.0]])
-        elif direction == -2:
+            if self.rotcounter[2] + 5 > 360:
+                self.rotcounter[2] = 0
+            else:
+                self.rotcounter[2] -= 5
+        elif direction == -2 and self.ztoggle:
             self.rot = np.matmul(self.rot, [[0.9962, 0.0872, 0.0], [-0.0872, 0.9962, 0.0], [0.0, 0.0, 1.0]])
+            if self.rotcounter[2] + 5 < 0:
+                self.rotcounter[2] = 360
+            else:
+                self.rotcounter[2] += 5
+        elif direction == 2:
+            self.rot = np.matmul(self.rot, [[0.9962, 0.0, 0.0872], [0.0, 1.0, 0.0], [-0.0872, 0.0, 0.9962]])
+            if self.rotcounter[1] + 5 > 360:
+                self.rotcounter[1] = 0
+            else:
+                self.rotcounter[1] -= 5
+        elif direction == -2:
+            self.rot = np.matmul(self.rot, [[0.9962, 0.0, -0.0872], [0.0, 1.0, 0.0], [0.0872, 0.0, 0.9962]])
+            if self.rotcounter[1] + 5 < 0:
+                self.rotcounter[1] = 360
+            else:
+                self.rotcounter[1] += 5
+
+    def reset_view(self):
+        self.zoom = 1.0
+        self.rotcounter = [0, 0, 0]
+        self.rot = np.identity(3)
+
+    def resize(self, height, width):
+        self.height = height
+        self.width = width
+        self.content = [[" "] * self.width for n in range(self.height - 1)]
+        self.zbuffer = [[10000.0] * self.width for n in range(self.height - 1)]
 
     def clear(self):
         for i in range(self.height - 1):
