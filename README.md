@@ -1,5 +1,7 @@
 # asciiMOL
 
+![Screenshots](docs/screens.png)
+
 A basic molecule viewer written in Python, using curses; Thus, meant for linux terminals.
 
 This is an alpha version, featuring:
