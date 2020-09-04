@@ -2,7 +2,7 @@ import argparse
 import curses
 from time import sleep
 
-from app.renderer import Renderer
+from asciimol.app.renderer import Renderer
 
 
 class AsciiMol:

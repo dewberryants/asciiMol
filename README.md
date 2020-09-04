@@ -13,6 +13,7 @@ This is an alpha version, featuring:
 Planned, but NYI features:
 * Automatic bond calculation and display
 * Colors
+* Two-letter atom symbols
 
 On the horizon:
 * Perspective / Orthographic view toggle

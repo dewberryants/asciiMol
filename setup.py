@@ -1,10 +1,12 @@
 from setuptools import setup, find_packages
 
-with open('README.md') as f:
+with open('./README.md') as f:
     readme = f.read()
 
-with open('LICENSE') as f:
+with open('./LICENSE') as f:
     lic = f.read()
+
+packages = find_packages()
 
 setup(
     name='asciimol',
@@ -15,5 +17,5 @@ setup(
     author_email='dewberryants@gmail.com',
     url='https://github.com/dewberryants/asciimol',
     license=lic,
-    packages=find_packages(exclude='docs')
+    packages=find_packages()
 )
