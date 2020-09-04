@@ -8,16 +8,16 @@ This is an alpha version, featuring:
 * Displaying one-letter atom labels
 * Orthographic view
 * Zoom, Rotation
-* Dynamic Resizing
+* Simple Colors for common light atoms
 
 Planned, but NYI features:
 * Automatic bond calculation and display
-* Colors
 * Two-letter atom symbols
 
 On the horizon:
 * Perspective / Orthographic view toggle
 * More formats
+* Custom Colors
 
 ## Installation
 
