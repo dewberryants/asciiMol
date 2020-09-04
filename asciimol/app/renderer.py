@@ -43,25 +43,25 @@ class Renderer:
             if self.rotcounter[2] + 5 > 360:
                 self.rotcounter[2] = 0
             else:
-                self.rotcounter[2] -= 5
+                self.rotcounter[2] += 5
         elif direction == -2 and self.ztoggle:
             self.rot = np.matmul(self.rot, [[0.9962, 0.0872, 0.0], [-0.0872, 0.9962, 0.0], [0.0, 0.0, 1.0]])
-            if self.rotcounter[2] + 5 < 0:
+            if self.rotcounter[2] - 5 < 0:
                 self.rotcounter[2] = 360
             else:
-                self.rotcounter[2] += 5
+                self.rotcounter[2] -= 5
         elif direction == 2:
             self.rot = np.matmul(self.rot, [[0.9962, 0.0, 0.0872], [0.0, 1.0, 0.0], [-0.0872, 0.0, 0.9962]])
             if self.rotcounter[1] + 5 > 360:
                 self.rotcounter[1] = 0
             else:
-                self.rotcounter[1] -= 5
+                self.rotcounter[1] += 5
         elif direction == -2:
             self.rot = np.matmul(self.rot, [[0.9962, 0.0, -0.0872], [0.0, 1.0, 0.0], [0.0872, 0.0, 0.9962]])
-            if self.rotcounter[1] + 5 < 0:
+            if self.rotcounter[1] - 5 < 0:
                 self.rotcounter[1] = 360
             else:
-                self.rotcounter[1] += 5
+                self.rotcounter[1] -= 5
 
     def reset_view(self):
         self.zoom = 1.0
