@@ -21,9 +21,9 @@ class Renderer:
         self.clear()
         for n, atm in enumerate(self.sym):
             x, y, z = rot[n]
-            xp, yp = round(x * self.zoom + mx), round(y * self.zoom + my)
-            if 1 < xp < self.width - 2 and 1 < yp < self.height - 2 and z < self.zbuffer[yp][xp]:
-                self.zbuffer[yp][xp] = z
+            xp, yp = round(float(x) * self.zoom + mx), round(float(y) * self.zoom + my)
+            if 1 < xp < self.width - 2 and 1 < yp < self.height - 2 and float(z) < self.zbuffer[yp][xp]:
+                self.zbuffer[yp][xp] = float(z)
                 self.content[yp][xp] = atm[0].upper() + "," + self.colors[atm[0]]
         return True
 
