@@ -5,8 +5,9 @@ class Renderer:
     def __init__(self, height, width, config):
         self.height = height
         self.width = width
+        self.colors = config.colors
         self.pos, self.sym = np.array(config.coordinates), config.symbols
-        self.content = [[" "] * self.width for n in range(self.height - 1)]
+        self.content = [[" ,0"] * self.width for n in range(self.height - 1)]
         self.zbuffer = [[10000.0] * self.width for n in range(self.height - 1)]
         self.ztoggle = True
         self.zoom = 1.0
@@ -23,7 +24,7 @@ class Renderer:
             xp, yp = round(x * self.zoom + mx), round(y * self.zoom + my)
             if 1 < xp < self.width - 2 and 1 < yp < self.height - 2 and z < self.zbuffer[yp][xp]:
                 self.zbuffer[yp][xp] = z
-                self.content[yp][xp] = atm[0]
+                self.content[yp][xp] = atm[0].upper() + "," + self.colors[atm[0]]
         return True
 
     def rotate(self, direction):
@@ -70,7 +71,7 @@ class Renderer:
     def resize(self, height, width):
         self.height = height
         self.width = width
-        self.content = [[" "] * self.width for n in range(self.height - 1)]
+        self.content = [[" ,0"] * self.width for n in range(self.height - 1)]
         self.zbuffer = [[10000.0] * self.width for n in range(self.height - 1)]
 
     def clear(self):
@@ -80,16 +81,16 @@ class Renderer:
         for i in range(self.height - 1):
             for j in range(self.width):
                 if i == 0 and j == 0:
-                    self.content[i][j] = "┌"
+                    self.content[i][j] = "┌,0"
                 elif (i == 0 or i == self.height - 2) and 0 < j < self.width - 1:
-                    self.content[i][j] = "─"
+                    self.content[i][j] = "─,0"
                 elif i == 0 and j == self.width - 1:
-                    self.content[i][j] = "┐"
+                    self.content[i][j] = "┐,0"
                 elif i < self.height - 2 and (j == 0 or j == self.width - 1):
-                    self.content[i][j] = "│"
+                    self.content[i][j] = "│,0"
                 elif i == self.height - 2 and j == 0:
-                    self.content[i][j] = "└"
+                    self.content[i][j] = "└,0"
                 elif i == self.height - 2 and j == self.width - 1:
-                    self.content[i][j] = "┘"
+                    self.content[i][j] = "┘,0"
                 else:
-                    self.content[i][j] = " "
+                    self.content[i][j] = " ,0"

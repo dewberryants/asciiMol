@@ -2,6 +2,7 @@ import argparse
 import curses
 from time import sleep
 
+from asciimol.app.colors import ColorDict
 from asciimol.app.renderer import Renderer
 
 
@@ -21,14 +22,17 @@ class AsciiMol:
     def draw_characters(self, content: list):
         for i in range(curses.LINES - 1):
             for j in range(curses.COLS):
-                self.stdscr.addstr(i, j, content[i][j])
+                char, col = content[i][j].split(",")
+                self.stdscr.addstr(i, j, char, int(col))
 
     def draw_navbar(self):
         x, y, z = self.renderer.rotcounter
         ztoggle_str = "Z" if self.renderer.ztoggle else "Y"
-        self.stdscr.addstr(curses.LINES - 1, 0,
-                           (" [Q]uit  [R]eset View [+-] Zoom (%f) [↔↕] Rotate (%d, %d, %d) [Z] ↔ Y/Z rotation (%s)"
-                            % (self.renderer.zoom, x, y, z, ztoggle_str))[:curses.COLS - 1])
+        navbar_string = " [Q]uit  [R]eset View [+-] Zoom (%f) [↔↕] Rotate (%d, %d, %d) [Z] ↔ Y/Z rotation (%s)" \
+                        % (self.renderer.zoom, x, y, z, ztoggle_str)
+        if self.renderer.colors.active:
+            navbar_string += " <Color Mode>"
+        self.stdscr.addstr(curses.LINES - 1, 0, navbar_string[:curses.COLS - 1])
 
     def _on_update(self):
         keys = []
@@ -77,6 +81,7 @@ class AsciiMol:
     def _mainloop(self, main_screen):
         # Save curses main screen for reference
         self.stdscr = main_screen
+        self.config.colors = ColorDict()
         # Init a new renderer of appropriate size
         self.renderer = Renderer(curses.LINES, curses.COLS, self.config)
         # Turns off cursor
@@ -103,6 +108,7 @@ class _Config:
         self.parser = self._setup_parser()
         opts = self.parser.parse_args()
         self.proceed, self.coordinates, self.symbols = self._parse_file(opts.XYZFILE)
+        self.colors = None
 
     @staticmethod
     def _parse_file(name: str):
