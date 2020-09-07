@@ -22,9 +22,9 @@ On the horizon:
 
 You will need:
 * git
-* python
-* setuptools
-* numpy
+* python3
+* (python3-setuptools)
+* python3-numpy
 
 1. Clone the repository using\
 `git clone https://github.com/dewberryants/asciiMol.git`
