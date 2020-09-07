@@ -12,6 +12,8 @@ class AsciiMol:
         self.renderer = None
         self.config = _Config()
         self.sig_changed = True
+        self.frames = 0
+        self.timeout = 0
 
     def _redraw(self):
         self.stdscr.clear()
@@ -30,9 +32,9 @@ class AsciiMol:
         ztoggle_str = "Z" if self.renderer.ztoggle else "Y"
         navbar_string = " [Q]uit  [R]eset View [+-] Zoom (%f) [↔↕] Rotate (%d, %d, %d) [Z] ↔ Y/Z rotation (%s)" \
                         % (self.renderer.zoom, x, y, z, ztoggle_str)
-        if self.renderer.colors.active:
-            navbar_string += " <Color Mode>"
-        self.stdscr.addstr(curses.LINES - 1, 0, navbar_string[:curses.COLS - 1])
+        # if self.renderer.colors.active:
+        #     navbar_string += " <Color Mode>"
+        self.stdscr.addstr(curses.LINES - 1, 0, navbar_string[:curses.COLS - 2])
 
     def _on_update(self):
         keys = []
@@ -69,13 +71,24 @@ class AsciiMol:
             # Q or q quits from anywhere, for now
             if 81 in keys or 113 in keys:
                 running = False
-        if curses.is_term_resized(self.renderer.height, self.renderer.width):
-            curses.update_lines_cols()
-            self.renderer.resize(curses.LINES, curses.COLS)
-            self.sig_changed = self.renderer.draw_scene()
+        # Limit resizing to once per second, this is easier on curses.
+        if self.frames == 50:
+            if curses.is_term_resized(self.renderer.height, self.renderer.width):
+                curses.update_lines_cols()
+                self.renderer.resize(curses.LINES, curses.COLS)
+                self.sig_changed = self.renderer.draw_scene()
+            self.frames = 0
         if self.sig_changed:
-            self._redraw()
-            self.draw_navbar()
+            try:
+                self._redraw()
+                self.draw_navbar()
+                self.timeout = 0
+            except curses.error:
+                # Try again next update, this could hang, so do a timeout counter
+                self.timeout += 1
+        if self.timeout > 100:
+            raise RuntimeError("Curses had an irrecoverable problem.")
+        self.frames += 1
         return running
 
     def _mainloop(self, main_screen):
@@ -91,8 +104,8 @@ class AsciiMol:
         running = True
         while running:
             try:
-                # Running at 25 fps
-                sleep(0.04)
+                # Running at 50 fps
+                sleep(0.02)
                 running = self._on_update()
             except (KeyboardInterrupt, SystemError, SystemExit):
                 running = False
@@ -108,7 +121,33 @@ class _Config:
         self.parser = self._setup_parser()
         opts = self.parser.parse_args()
         self.proceed, self.coordinates, self.symbols = self._parse_file(opts.XYZFILE)
+        self.bonds = self._setup_bonds()
         self.colors = None
+
+    def _setup_bonds(self):
+        atms = len(self.symbols)
+        radii = list(self._map_radii(self.symbols))
+        bonds = []
+        unbound = list(range(atms))
+        for i in range(atms):
+            for j in range(i):
+                xa, ya, za = self.coordinates[i]
+                xb, yb, zb = self.coordinates[j]
+                rsq = (radii[i] + radii[j]) ** 2
+                dist = (xa - xb) ** 2 + (ya - yb) ** 2 + (za - zb) ** 2
+                if dist < rsq:
+                    bonds.append((i, j))
+                    unbound[i] = -1
+                    unbound[j] = -1
+        for n, state in enumerate(unbound):
+            if state != -1:
+                bonds += [(n, n)]
+        return bonds
+
+    @staticmethod
+    def _map_radii(a):
+        for i in a:
+            yield 0.73 if i.upper() == "O" else 0.32
 
     @staticmethod
     def _parse_file(name: str):
