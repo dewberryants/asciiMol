@@ -17,5 +17,6 @@ setup(
     author_email='dewberryants@gmail.com',
     url='https://github.com/dewberryants/asciimol',
     license=lic,
-    packages=find_packages(exclude="docs")
+    packages=find_packages(exclude="docs"),
+    package_data={"": ["data/*"]}
 )
