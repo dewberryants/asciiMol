@@ -13,6 +13,7 @@ class Renderer:
 
         self.colors = config.colors
         self.bonds = config.bonds
+        self.btoggle = len(self.bonds) > 0
         self.pos, self.sym = np.array(config.coordinates), config.symbols
 
         self.ztoggle = True
@@ -58,13 +59,15 @@ class Renderer:
                 if 1 < xbp < self.width - 2 and 1 < ybp < self.height - 2 and float(zb) < self.zbuffer[ybp][xbp]:
                     self.zbuffer[ybp][xbp] = float(zb)
                     self.content[ybp][xbp] = self.sym[j][0].upper() + "," + self.colors[self.sym[j][0]]
+                if not self.btoggle:
+                    continue
                 # Then start at xap+1 and go to xbp-1, drawing line segments
                 sy = -1 if ya > yb else 1
                 sx = -1 if xa > xb else 1
                 sz = -1 if za > zb else 1
-                dx = float((xb - xa) / (yb - ya))
-                dy = float((yb - ya) / (xb - xa))
-                dz = float((zb - za) / (xb - xa))
+                dx = float((xb - xa) / (yb - ya)) if (yb - ya) > 0 else 0
+                dy = float((yb - ya) / (xb - xa)) if (xb - xa) > 0 else 0
+                dz = float((zb - za) / (xb - xa)) if (xb - xa) > 0 else 0
                 if abs(dy) <= 1:
                     for k in range(1, abs(xap - xbp)):
                         xk = xap + sx * k

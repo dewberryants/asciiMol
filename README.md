@@ -11,9 +11,9 @@ This is an alpha version, featuring:
 * Orthographic view
 * Zoom, Rotation
 * Simple Colors for common light atoms
+* Basic bond detection and display
 
 Planned, but NYI features:
-* Automatic bond calculation and display
 * Two-letter atom symbols
 
 On the horizon:
@@ -25,7 +25,7 @@ On the horizon:
 
 You will need:
 * git
-* Python 3.8
+* python
 * setuptools
 * numpy
 

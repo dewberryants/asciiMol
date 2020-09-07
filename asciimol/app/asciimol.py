@@ -2,6 +2,7 @@ import argparse
 import curses
 from time import sleep
 
+from asciimol.app import data_radii
 from asciimol.app.colors import ColorDict
 from asciimol.app.renderer import Renderer
 
@@ -30,10 +31,11 @@ class AsciiMol:
     def draw_navbar(self):
         x, y, z = self.renderer.rotcounter
         ztoggle_str = "Z" if self.renderer.ztoggle else "Y"
-        navbar_string = " [Q]uit  [R]eset View [+-] Zoom (%f) [↔↕] Rotate (%d, %d, %d) [Z] ↔ Y/Z rotation (%s)" \
-                        % (self.renderer.zoom, x, y, z, ztoggle_str)
-        # if self.renderer.colors.active:
-        #     navbar_string += " <Color Mode>"
+        navbar_string = "[Q]uit [R]eset View"
+        navbar_string += " [B]onds %s " % ("on " if self.renderer.btoggle else "off")
+        navbar_string += "[+-] Zoom (%- 3.3f) " % self.renderer.zoom
+        navbar_string += "[↔↕] Rotate (%-3.f, %-3.f, %-3.f) " % (x, y, z)
+        navbar_string += "[Z] ↔ Y/Z rotation (%s) " % ztoggle_str
         self.stdscr.addstr(curses.LINES - 1, 0, navbar_string[:curses.COLS - 2])
 
     def _on_update(self):
@@ -59,11 +61,14 @@ class AsciiMol:
             if 43 in keys:
                 self.renderer.zoom += 0.1
                 self.sig_changed = self.renderer.draw_scene()
-            if 45 in keys:
+            if 45 in keys and self.renderer.zoom > 0.2:
                 self.renderer.zoom -= 0.1
                 self.sig_changed = self.renderer.draw_scene()
             if 82 in keys or 114 in keys:
                 self.renderer.reset_view()
+                self.sig_changed = self.renderer.draw_scene()
+            if 66 in keys or 98 in keys:
+                self.renderer.btoggle = not self.renderer.btoggle
                 self.sig_changed = self.renderer.draw_scene()
             if 90 in keys or 122 in keys:
                 self.renderer.ztoggle = not self.renderer.ztoggle
@@ -146,8 +151,11 @@ class _Config:
 
     @staticmethod
     def _map_radii(a):
-        for i in a:
-            yield 0.73 if i.upper() == "O" else 0.32
+        for symbol in a:
+            if symbol in data_radii:
+                yield data_radii[symbol]
+            else:
+                yield 1.5
 
     @staticmethod
     def _parse_file(name: str):
