@@ -10,7 +10,7 @@ packages = find_packages()
 
 setup(
     name='asciimol',
-    version='0.1.0',
+    version='0.1.1',
     description='An ASCII molecule viewer.',
     long_description=readme,
     author='Dominik Behrens',
