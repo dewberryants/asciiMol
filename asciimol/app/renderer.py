@@ -65,9 +65,9 @@ class Renderer:
                 sy = -1 if ya > yb else 1
                 sx = -1 if xa > xb else 1
                 sz = -1 if za > zb else 1
-                dx = float((xb - xa) / (yb - ya)) if (yb - ya) > 0 else 0
-                dy = float((yb - ya) / (xb - xa)) if (xb - xa) > 0 else 0
-                dz = float((zb - za) / (xb - xa)) if (xb - xa) > 0 else 0
+                dx = float((xb - xa) / (yb - ya)) if abs(yb - ya) > 0 else 0
+                dy = float((yb - ya) / (xb - xa)) if abs(xb - xa) > 0 else 0
+                dz = float((zb - za) / (xb - xa)) if abs(xb - xa) > 0 else 0
                 if abs(dy) <= 1:
                     for k in range(1, abs(xap - xbp)):
                         xk = xap + sx * k
