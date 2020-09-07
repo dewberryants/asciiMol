@@ -126,7 +126,8 @@ class _Config:
         self.parser = self._setup_parser()
         opts = self.parser.parse_args()
         self.proceed, self.coordinates, self.symbols = self._parse_file(opts.XYZFILE)
-        self.bonds = self._setup_bonds()
+        if self.proceed:
+            self.bonds = self._setup_bonds()
         self.colors = None
 
     def _setup_bonds(self):
@@ -138,7 +139,7 @@ class _Config:
             for j in range(i):
                 xa, ya, za = self.coordinates[i]
                 xb, yb, zb = self.coordinates[j]
-                rsq = (radii[i] + radii[j] + 0.42) ** 2
+                rsq = (radii[i] + radii[j] + 0.41) ** 2
                 dist = (xa - xb) ** 2 + (ya - yb) ** 2 + (za - zb) ** 2
                 if dist < rsq or dist < 0.4:
                     bonds.append((i, j))
