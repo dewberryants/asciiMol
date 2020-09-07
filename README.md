@@ -13,9 +13,6 @@ This is an alpha version, featuring:
 * Simple Colors for common light atoms
 * Basic bond detection and display
 
-Planned, but NYI features:
-* Two-letter atom symbols
-
 On the horizon:
 * Perspective / Orthographic view toggle
 * More formats
