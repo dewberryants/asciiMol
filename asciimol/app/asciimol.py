@@ -138,9 +138,9 @@ class _Config:
             for j in range(i):
                 xa, ya, za = self.coordinates[i]
                 xb, yb, zb = self.coordinates[j]
-                rsq = (radii[i] + radii[j]) ** 2
+                rsq = (radii[i] + radii[j] + 0.42) ** 2
                 dist = (xa - xb) ** 2 + (ya - yb) ** 2 + (za - zb) ** 2
-                if dist < rsq:
+                if dist < rsq or dist < 0.4:
                     bonds.append((i, j))
                     unbound[i] = -1
                     unbound[j] = -1
