@@ -140,6 +140,7 @@ class Renderer:
         self.zoom = 1.0
         self.rotcounter = [0, 0, 0]
         self.rot = np.identity(3)
+        self.m = round(self.width / 2), round(self.height / 2)
 
     def resize(self, height, width):
         """

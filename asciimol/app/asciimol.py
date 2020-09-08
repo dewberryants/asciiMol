@@ -36,6 +36,7 @@ class AsciiMol:
         navbar_string += "[+-] Zoom (%- 3.3f) " % self.renderer.zoom
         navbar_string += "[↔↕] Rotate (%-3.f, %-3.f, %-3.f) " % (x, y, z)
         navbar_string += "[Z] ↔ Y/Z rotation (%s) " % ztoggle_str
+        navbar_string += " [WSAD] Navigate"
         try:
             self.stdscr.addstr(navbar_string)
         except curses.error:
@@ -51,16 +52,16 @@ class AsciiMol:
         running = True
         if len(keys) > 0:
             if 87 in keys or 119 in keys:  # W
-                self.renderer.m = (self.renderer.m[0], self.renderer.m[1] - 1)
+                self.renderer.m = (self.renderer.m[0], self.renderer.m[1] - round(self.renderer.zoom))
                 self.sig_changed = self.renderer.draw_scene()
             if 83 in keys or 115 in keys:  # S
-                self.renderer.m = (self.renderer.m[0], self.renderer.m[1] + 1)
+                self.renderer.m = (self.renderer.m[0], self.renderer.m[1] + round(self.renderer.zoom))
                 self.sig_changed = self.renderer.draw_scene()
             if 65 in keys or 97 in keys:  # A
-                self.renderer.m = (self.renderer.m[0] - 1, self.renderer.m[1])
+                self.renderer.m = (self.renderer.m[0] - round(self.renderer.zoom), self.renderer.m[1])
                 self.sig_changed = self.renderer.draw_scene()
             if 68 in keys or 100 in keys:  # D
-                self.renderer.m = (self.renderer.m[0] + 1, self.renderer.m[1])
+                self.renderer.m = (self.renderer.m[0] + round(self.renderer.zoom), self.renderer.m[1])
                 self.sig_changed = self.renderer.draw_scene()
             if curses.KEY_DOWN in keys:
                 self.renderer.rotate(1)
@@ -88,7 +89,7 @@ class AsciiMol:
                 self.sig_changed = self.renderer.draw_scene()
             if 90 in keys or 122 in keys:  # Z
                 self.renderer.ztoggle = not self.renderer.ztoggle
-                self.draw_navbar()
+                self.sig_changed = self.renderer.draw_scene()
             # Q or q quits from anywhere, for now
             if 81 in keys or 113 in keys:
                 running = False
