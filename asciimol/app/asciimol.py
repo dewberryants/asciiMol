@@ -2,7 +2,7 @@ import argparse
 import curses
 from time import sleep
 
-from asciimol.app import data_radii
+from asciimol.app import data_atoms
 from asciimol.app.colors import ColorDict
 from asciimol.app.renderer import Renderer
 
@@ -23,7 +23,7 @@ class AsciiMol:
         self.sig_changed = False
 
     def draw_characters(self, content: list):
-        for i in range(curses.LINES - 1):
+        for i in range(curses.LINES - 2):
             for j in range(curses.COLS):
                 char, col = content[i][j].split(",")
                 self.stdscr.addstr(i, j, char, int(col))
@@ -36,7 +36,11 @@ class AsciiMol:
         navbar_string += "[+-] Zoom (%- 3.3f) " % self.renderer.zoom
         navbar_string += "[↔↕] Rotate (%-3.f, %-3.f, %-3.f) " % (x, y, z)
         navbar_string += "[Z] ↔ Y/Z rotation (%s) " % ztoggle_str
-        self.stdscr.addstr(curses.LINES - 1, 0, navbar_string[:curses.COLS - 2])
+        try:
+            self.stdscr.addstr(navbar_string)
+        except curses.error:
+            if curses.LINES > 1 and curses.COLS > 3:
+                self.stdscr.addstr(curses.LINES - 1, curses.COLS - 4, "...")
 
     def _on_update(self):
         keys = []
@@ -46,6 +50,18 @@ class AsciiMol:
             key = self.stdscr.getch()
         running = True
         if len(keys) > 0:
+            if 87 in keys or 119 in keys:  # W
+                self.renderer.m = (self.renderer.m[0], self.renderer.m[1] - 1)
+                self.sig_changed = self.renderer.draw_scene()
+            if 83 in keys or 115 in keys:  # S
+                self.renderer.m = (self.renderer.m[0], self.renderer.m[1] + 1)
+                self.sig_changed = self.renderer.draw_scene()
+            if 65 in keys or 97 in keys:  # A
+                self.renderer.m = (self.renderer.m[0] - 1, self.renderer.m[1])
+                self.sig_changed = self.renderer.draw_scene()
+            if 68 in keys or 100 in keys:  # D
+                self.renderer.m = (self.renderer.m[0] + 1, self.renderer.m[1])
+                self.sig_changed = self.renderer.draw_scene()
             if curses.KEY_DOWN in keys:
                 self.renderer.rotate(1)
                 self.sig_changed = self.renderer.draw_scene()
@@ -58,26 +74,26 @@ class AsciiMol:
             if curses.KEY_RIGHT in keys:
                 self.renderer.rotate(-2)
                 self.sig_changed = self.renderer.draw_scene()
-            if 43 in keys:
+            if 43 in keys:  # +
                 self.renderer.zoom += 0.1
                 self.sig_changed = self.renderer.draw_scene()
-            if 45 in keys and self.renderer.zoom > 0.2:
+            if 45 in keys and self.renderer.zoom > 0.2:  # -
                 self.renderer.zoom -= 0.1
                 self.sig_changed = self.renderer.draw_scene()
-            if 82 in keys or 114 in keys:
+            if 82 in keys or 114 in keys:  # R
                 self.renderer.reset_view()
                 self.sig_changed = self.renderer.draw_scene()
-            if 66 in keys or 98 in keys:
+            if 66 in keys or 98 in keys:  # B
                 self.renderer.btoggle = not self.renderer.btoggle
                 self.sig_changed = self.renderer.draw_scene()
-            if 90 in keys or 122 in keys:
+            if 90 in keys or 122 in keys:  # Z
                 self.renderer.ztoggle = not self.renderer.ztoggle
                 self.draw_navbar()
             # Q or q quits from anywhere, for now
             if 81 in keys or 113 in keys:
                 running = False
         # Limit resizing to once per second, this is easier on curses.
-        if self.frames == 50:
+        if self.frames == 49:
             if curses.is_term_resized(self.renderer.height, self.renderer.width):
                 curses.update_lines_cols()
                 self.renderer.resize(curses.LINES, curses.COLS)
@@ -118,6 +134,7 @@ class AsciiMol:
     def run(self):
         if self.config.proceed:
             curses.wrapper(self._mainloop)
+            curses.use_default_colors()
         return 0
 
 
@@ -153,8 +170,8 @@ class _Config:
     @staticmethod
     def _map_radii(a):
         for symbol in a:
-            if symbol in data_radii:
-                yield data_radii[symbol]
+            if symbol in data_atoms:
+                yield data_atoms[symbol][0]
             else:
                 yield 1.5
 
