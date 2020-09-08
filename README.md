@@ -23,7 +23,7 @@ On the horizon:
 You will need:
 * git
 * python3
-* (python3-setuptools)
+* python3-setuptools (should be included in most python3 installations)
 * python3-numpy
 
 1. Clone the repository using\
