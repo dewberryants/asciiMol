@@ -24,7 +24,7 @@
   A C      0.77      CYAN
   A N      0.71      BLUE
   A O      0.73      RED
-  A F      0.71      LIGHTBLUE
+  A F      0.71      GREEN
   A Ne     0.69      LIGHTBLUE
   A Na     1.54      LIGHTGOLD
   A Mg     1.30      GRAY
@@ -68,7 +68,7 @@
   A Sn     1.41      GRAY
   A Sb     1.38      GRAY
   A Te     1.35      GRAY
-  A In     1.33      GRAY
+  A I      1.33      MAGENTA
   A Xe     1.30      LIGHTBLUE
   A Cs     2.25      LIGHTGOLD
   A Ba     1.98      GRAY
