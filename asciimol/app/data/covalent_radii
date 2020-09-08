@@ -4,17 +4,17 @@
 # Last two columns are backup colors for default 256 and 8 color terminals
 # C COLORLABEL     R     G     B      256    8
   C WHITE          0.99  0.99  0.99   0      0
-  C RED            0.99  0.00  0.00   196    1
-  C LIGHTBLUE      0.71  0.87  0.91   33     4
-  C LIGHTGOLD      0.92  0.73  0.56   220    3
-  C GRAY           0.55  0.55  0.55   244    7
-  C MAGENTA        0.99  0.00  0.99   57     5
-  C CYAN           0.00  0.99  0.99   102    6
-  C BLUE           0.00  0.00  0.99   20     4
-  C ORANGE         0.80  0.35  0.00   167    3
-  C YELLOW         0.99  0.99  0.00   226    3
-  C GREEN          0.00  0.99  0.00   46     2
-  C BROWN          0.41  0.11  0.00   52     1
+  C RED            0.99  0.00  0.00   1      1
+  C LIGHTBLUE      0.71  0.87  0.91   4      4
+  C LIGHTGOLD      0.92  0.73  0.56   3      3
+  C GRAY           0.55  0.55  0.55   8      7
+  C MAGENTA        0.99  0.00  0.99   5      5
+  C CYAN           0.00  0.99  0.99   6      6
+  C BLUE           0.00  0.00  0.99   4      4
+  C ORANGE         0.80  0.35  0.00   3      3
+  C YELLOW         0.99  0.99  0.00   3      3
+  C GREEN          0.00  0.99  0.00   2      2
+  C BROWN          0.41  0.11  0.00   1      1
 # A SYMBOL COVRADIUS COLORLABEL 
   A H      0.32      WHITE
   A He     0.32      LIGHTBLUE

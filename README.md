@@ -1,6 +1,6 @@
 # asciiMOL
 
-![Screenshots](docs/screens.png)
+![Screenshots](docs/anim.gif)
 
 A basic molecule viewer written in Python, using curses; Thus, meant for linux terminals.
 
