@@ -30,7 +30,7 @@ You will need:
 `git clone https://github.com/dewberryants/asciiMol.git`
 
 2. Navigate into the folder (containing the setup.py), then run:\
-`easy_install --user .`\
+`pip install --user .`\
 which will install the pacakage into your local python site package directory. You can choose to omit the `--user`
 flag, however be aware that this might then require root privilege.
 
