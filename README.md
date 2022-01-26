@@ -2,7 +2,7 @@
 
 [![PyPI version](https://badge.fury.io/py/asciimol.svg)](https://badge.fury.io/py/asciimol)
 
-![Screenshots](docs/anim.gif)
+![Screenshots](https://raw.githubusercontent.com/dewberryants/asciiMol/master/docs/anim.gif)
 
 A basic molecule viewer written in Python, using curses; Thus, meant for linux terminals.
 
