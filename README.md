@@ -1,5 +1,7 @@
 # asciiMOL
 
+[![PyPI version](https://badge.fury.io/py/asciimol.svg)](https://badge.fury.io/py/asciimol)
+
 ![Screenshots](docs/anim.gif)
 
 A basic molecule viewer written in Python, using curses; Thus, meant for linux terminals.
@@ -20,19 +22,6 @@ On the horizon:
 
 ## Installation
 
-You will need:
-* git
-* python3
-* python3-setuptools (should be included in most python3 installations)
-* python3-numpy
-
-1. Clone the repository using\
-`git clone https://github.com/dewberryants/asciiMol.git`
-
-2. Navigate into the folder (containing the setup.py), then run:\
-`pip install --user .`\
-which will install the pacakage into your local python site package directory. You can choose to omit the `--user`
-flag, however be aware that this might then require root privilege.
-
-3. Use the module by typing:\
-`python -m asciimol input.xyz`
+```sh
+pip install asciimol
+```

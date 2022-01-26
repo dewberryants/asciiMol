@@ -15,8 +15,15 @@ setup(
     long_description=readme,
     author='Dominik Behrens',
     author_email='dewberryants@gmail.com',
+    install_requires=['numpy'],
     url='https://github.com/dewberryants/asciimol',
     license=lic,
     packages=find_packages(exclude="docs"),
-    package_data={"": ["data/*"]}
+    package_data={"": ["data/*"]},
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: BSD 2 License",
+        "Operating System :: OS Independent",
+        "Topic :: Scientific/Engineering :: Chemistry"
+    ],
 )
