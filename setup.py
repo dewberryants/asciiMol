@@ -13,6 +13,7 @@ setup(
     version='0.1.2',
     description='An ASCII molecule viewer.',
     long_description=readme,
+    long_description_content_type="text/markdown",
     author='Dominik Behrens',
     author_email='dewberryants@gmail.com',
     install_requires=['numpy'],
