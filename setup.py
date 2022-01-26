@@ -22,7 +22,7 @@ setup(
     package_data={"": ["data/*"]},
     classifiers=[
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: BSD 2 License",
+        "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
         "Topic :: Scientific/Engineering :: Chemistry"
     ],
