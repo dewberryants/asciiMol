@@ -6,7 +6,7 @@ dir_data = os.path.join(_APP, "data")
 data_atoms = {}
 data_colors = {}
 
-with open(os.path.join(dir_data, "covalent_radii")) as ifile:
+with open(os.path.join(dir_data, "atom_data")) as ifile:
     line = ifile.readline()
     while line != "":
         stripped = line.strip()
@@ -25,3 +25,22 @@ with open(os.path.join(dir_data, "covalent_radii")) as ifile:
             except (NameError, ValueError, KeyError):
                 raise RuntimeError("DEFINITION FILE FORMAT ERROR (Covalent Radii)")
         line = ifile.readline()
+
+
+def map_radii(a):
+    for symbol in a:
+        symbol = symbol.upper()
+        if symbol in data_atoms:
+            yield data_atoms[symbol][0]
+        else:
+            yield 1.5
+
+
+def map_colors(a):
+    for symbol in a:
+        symbol = symbol.upper()
+        if symbol in data_atoms:
+            yield data_colors[data_atoms[symbol][1]]
+        else:
+            print(symbol, " not in data_atoms")
+            yield 0.9, 0.9, 0.9, 0, 0
