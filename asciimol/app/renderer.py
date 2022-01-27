@@ -174,7 +174,7 @@ class Renderer:
         # Since terminal characters are higher than wide, I correct for this by multiplying the x by f
         # so that it appears wider. 2.25 is what looks good on my terminals, but might be
         # nice to have a general way of determining the optimal value
-        self.f = 2
+        self.f = 2.25
 
     def clear(self):
         """
