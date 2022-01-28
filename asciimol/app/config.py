@@ -66,21 +66,19 @@ def read_xyz(handle):
         return False, None, None
     pos, sym = [], []
     handle.readline()  # Unused Comment line
-    line = handle.readline()
-    while line != "":
+    for n in range(atms):
+        if line == "":
+            print("XYZ FORMAT ERROR: Unexpected EOF. Atoms and Atom Number in line 1 mismatch!")
+            return False, None, None
+        line = handle.readline()
         work = line.strip().split()
         try:
             sym.append(work[0])
             pos.append([float(work[1]), float(work[2]), float(work[3])])
         except IndexError:
-            print("XYZ FORMAT ERROR: Line '%s' is too short." % line)
+            print("XYZ FORMAT ERROR: Line '%s' is not formatted correctly." % line)
             return False, None, None
-        line = handle.readline()
-    if atms == len(sym):
-        return True, pos, sym
-    else:
-        print("XYZ FORMAT ERROR: Atom Number (%d) and actual data length (%d) mismatch!" % (atms, len(sym)))
-        return False, None, None
+    return True, pos, sym
 
 
 conf = Config()

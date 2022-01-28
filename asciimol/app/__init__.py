@@ -42,5 +42,4 @@ def map_colors(a):
         if symbol in data_atoms:
             yield data_colors[data_atoms[symbol][1]]
         else:
-            print(symbol, " not in data_atoms")
             yield 0.9, 0.9, 0.9, 0, 0

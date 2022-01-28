@@ -1,6 +1,3 @@
-import sys
+from asciimol import run_asciimol
 
-from asciimol.app.asciimol import AsciiMol
-
-if __name__ == "__main__":
-    sys.exit(AsciiMol().run())
+run_asciimol()

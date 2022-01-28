@@ -10,7 +10,7 @@ packages = find_packages()
 
 setup(
     name='asciimol',
-    version='0.1.4',
+    version='0.1.5',
     description='An ASCII molecule viewer.',
     long_description=readme,
     long_description_content_type="text/markdown",
@@ -27,4 +27,5 @@ setup(
         "Operating System :: OS Independent",
         "Topic :: Scientific/Engineering :: Chemistry"
     ],
+    entry_points={"console_scripts": ["asciimol = asciimol:run_asciimol"]}
 )
