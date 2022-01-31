@@ -1,5 +1,6 @@
 import curses
 from time import sleep
+from math import ceil
 
 from asciimol.app.config import conf
 from asciimol.app.renderer import Renderer
@@ -45,13 +46,13 @@ class AsciiMol:
         self.sig_changed = False
         if len(keys) > 0:
             if 87 in keys or 119 in keys:  # W
-                self.sig_changed = self.renderer.navigate(dy=-round(self.renderer.zoom))
+                self.sig_changed = self.renderer.navigate(dy=-ceil(self.renderer.zoom))
             if 83 in keys or 115 in keys:  # S
-                self.sig_changed = self.renderer.navigate(dy=round(self.renderer.zoom))
+                self.sig_changed = self.renderer.navigate(dy=ceil(self.renderer.zoom))
             if 65 in keys or 97 in keys:  # A
-                self.sig_changed = self.renderer.navigate(dx=-round(self.renderer.zoom))
+                self.sig_changed = self.renderer.navigate(dx=-ceil(self.renderer.zoom))
             if 68 in keys or 100 in keys:  # D
-                self.sig_changed = self.renderer.navigate(dx=round(self.renderer.zoom))
+                self.sig_changed = self.renderer.navigate(dx=ceil(self.renderer.zoom))
             if curses.KEY_DOWN in keys:
                 self.sig_changed = self.renderer.rotate(1)
             if curses.KEY_UP in keys:
