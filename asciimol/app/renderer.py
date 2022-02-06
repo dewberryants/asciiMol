@@ -208,3 +208,22 @@ class Renderer:
         center = 1.0 / self.pos.shape[0] * np.sum(self.pos, axis=0)
         self.pos -= center
         return True
+
+    def prinicple_axes(self):
+        """
+        Transform to principle axes of rotation
+        """
+        self.center()
+        x, y, z = np.transpose(self.pos)
+        xx = np.sum(y * y + z * z)
+        yy = np.sum(x * x + z * z)
+        zz = np.sum(x * x + y * y)
+        xy = -np.sum(x * y)
+        yz = -np.sum(y * z)
+        xz = -np.sum(x * z)
+        i = np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
+        w, t = np.linalg.eig(i)
+        # Einstein Summation: for the 3x3 matrix t, multiply row j with each of the k rows in pos and sum
+        # this is essentially just a basis transformation to the principle axes coordinate system.
+        self.pos = np.einsum('ij,kj->ki', np.linalg.inv(t), self.pos)
+        return True

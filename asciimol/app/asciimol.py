@@ -30,13 +30,14 @@ class AsciiMol:
     def draw_navbar(self):
         x, y, z = self.renderer.rotcounter
         ztoggle_str = "Z" if self.renderer.ztoggle else "Y"
-        navbar_string = "[Q]uit [R]eset View"
-        navbar_string += " [B]onds %s " % ("on " if self.renderer.btoggle else "off")
+        navbar_string = "[Q]uit [R]eset "
+        navbar_string += "[B]onds %s " % ("on " if self.renderer.btoggle else "off")
         navbar_string += "[+-] Zoom (%- 3.3f) " % self.renderer.zoom
         navbar_string += "[↔↕] Rotate (%-3.f, %-3.f, %-3.f) " % (x, y, z)
         navbar_string += "[Z] ↔ Y/Z rotation (%s) " % ztoggle_str
         navbar_string += "[WSAD] Navigate "
         navbar_string += "[C] Center"
+        navbar_string += "[T] Principle Axes"
         try:
             self.stdscr.addstr(navbar_string)
         except curses.error:
@@ -56,6 +57,8 @@ class AsciiMol:
                 self.sig_changed = self.renderer.navigate(dx=ceil(self.renderer.zoom))
             if 67 in keys or 99 in keys:  # C
                 self.sig_changed = self.renderer.center()
+            if 84 in keys or 116 in keys:  # T
+                self.sig_changed = self.renderer.prinicple_axes()
             if curses.KEY_DOWN in keys:
                 self.sig_changed = self.renderer.rotate(1)
             if curses.KEY_UP in keys:
