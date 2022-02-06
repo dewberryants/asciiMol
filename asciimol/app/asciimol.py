@@ -104,7 +104,8 @@ class AsciiMol:
                 self.renderer.resize(curses.LINES, curses.COLS)
                 self.sig_changed = True
             self.frames = 0
-        if self.renderer.get_auto_rotate():
+        # Auto-Rotation at 30 fps to reduce workload
+        if self.renderer.get_auto_rotate() and self.frames % 2 == 0:
             self.renderer.auto_rotate()
             self.sig_changed = True
         if self.sig_changed:

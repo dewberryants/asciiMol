@@ -100,11 +100,11 @@ class Renderer:
 
     def auto_rotate(self):
         if self.auto_rotate_flags[0]:
-            self.rotate(x=0.16)
+            self.rotate(x=0.32)
         if self.auto_rotate_flags[1]:
-            self.rotate(y=0.16)
+            self.rotate(y=0.32)
         if self.auto_rotate_flags[2]:
-            self.rotate(z=0.16)
+            self.rotate(z=0.32)
 
     def rotate(self, x=0.0, y=0.0, z=0.0):
         """
