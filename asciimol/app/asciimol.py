@@ -36,8 +36,9 @@ class AsciiMol:
         navbar_string += "[↔↕] Rotate (%-3.f, %-3.f, %-3.f) " % (x, y, z)
         navbar_string += "[Z] ↔ Y/Z rotation (%s) " % ztoggle_str
         navbar_string += "[WSAD] Navigate "
-        navbar_string += "[C] Center"
-        navbar_string += "[T] Principle Axes"
+        navbar_string += "[C] Center "
+        navbar_string += "[T] Principle Axes "
+        navbar_string += "[F1-3] Auto-Rotate"
         try:
             self.stdscr.addstr(navbar_string)
         except curses.error:
