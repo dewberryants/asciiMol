@@ -59,14 +59,20 @@ class AsciiMol:
                 self.sig_changed = self.renderer.center()
             if 84 in keys or 116 in keys:  # T
                 self.sig_changed = self.renderer.prinicple_axes()
+            if curses.KEY_F1 in keys:  # F1
+                self.renderer.toggle_auto_rotate(x=True)
+            if curses.KEY_F2 in keys:  # F2
+                self.renderer.toggle_auto_rotate(y=True)
+            if curses.KEY_F3 in keys:  # F3
+                self.renderer.toggle_auto_rotate(z=True)
             if curses.KEY_DOWN in keys:
-                self.sig_changed = self.renderer.rotate(1)
+                self.sig_changed = self.renderer.rotate(x=1)
             if curses.KEY_UP in keys:
-                self.sig_changed = self.renderer.rotate(-1)
+                self.sig_changed = self.renderer.rotate(x=-1)
             if curses.KEY_LEFT in keys:
-                self.sig_changed = self.renderer.rotate(2)
+                self.sig_changed = self.renderer.rotate(z=1) if self.renderer.ztoggle else self.renderer.rotate(y=1)
             if curses.KEY_RIGHT in keys:
-                self.sig_changed = self.renderer.rotate(-2)
+                self.sig_changed = self.renderer.rotate(z=-1) if self.renderer.ztoggle else self.renderer.rotate(y=-1)
             if 43 in keys:  # +
                 self.sig_changed = self.renderer.modify_zoom(0.1)
             if 45 in keys:  # -
@@ -97,6 +103,9 @@ class AsciiMol:
                 self.renderer.resize(curses.LINES, curses.COLS)
                 self.sig_changed = True
             self.frames = 0
+        if self.renderer.get_auto_rotate():
+            self.renderer.auto_rotate()
+            self.sig_changed = True
         if self.sig_changed:
             try:
                 self.renderer.buffer_scene()

@@ -22,6 +22,8 @@ class Renderer:
         self.rotcounter = [0, 0, 0]
         self.buffer_scene()
 
+        self.auto_rotate_flags = np.array([False, False, False])
+
     def buffer_scene(self):
         """
         A super simple rasterizer. For now, just draw single character atom symbols at their rounded x and y
@@ -90,53 +92,55 @@ class Renderer:
                             self.content[yk][xk] = "·,%s" % col
         return True
 
-    def rotate(self, direction):
+    def toggle_auto_rotate(self, x=False, y=False, z=False):
+        self.auto_rotate_flags[[x, y, z]] = not all(self.auto_rotate_flags[[x, y, z]])
+
+    def get_auto_rotate(self):
+        return any(self.auto_rotate_flags)
+
+    def auto_rotate(self):
+        if self.auto_rotate_flags[0]:
+            self.rotate(x=0.16)
+        if self.auto_rotate_flags[1]:
+            self.rotate(y=0.16)
+        if self.auto_rotate_flags[2]:
+            self.rotate(z=0.16)
+
+    def rotate(self, x=0.0, y=0.0, z=0.0):
         """
         Set an internal rotation matrix that is applied to the coordinates before every render.
-
-        :param direction: 1 and -1 are x and -x, 2 is either z/y, depending on whether the ztoggle is active or not
         """
-        increment = np.pi / 36
-        sine = np.sin(increment)
-        cosine = np.cos(increment)
-        if direction == 1:
+        if abs(x) > 0:
+            increment = np.pi / 36 * x
+            sine = np.sin(increment)
+            cosine = np.cos(increment)
             self.rot = np.matmul(self.rot, [[1.0, 0.0, 0.0], [0.0, cosine, -sine], [0.0, sine, cosine]])
-            if self.rotcounter[0] + 5 > 360:
-                self.rotcounter[0] = 0
-            self.rotcounter[0] += 5
-        elif direction == -1:
-            self.rot = np.matmul(self.rot, [[1.0, 0.0, 0.0], [0.0, cosine, sine], [0.0, -sine, cosine]])
-            if self.rotcounter[0] - 5 < 0:
-                self.rotcounter[0] = 360
-            self.rotcounter[0] -= 5
-        elif direction == 2 and self.ztoggle:
-            self.rot = np.matmul(self.rot, [[cosine, -sine, 0.0], [sine, cosine, 0.0], [0.0, 0.0, 1.0]])
-            if self.rotcounter[2] + 5 > 360:
-                self.rotcounter[2] = 0
-            else:
-                self.rotcounter[2] += 5
-        elif direction == -2 and self.ztoggle:
-            self.rot = np.matmul(self.rot, [[cosine, sine, 0.0], [-sine, cosine, 0.0], [0.0, 0.0, 1.0]])
-            if self.rotcounter[2] - 5 < 0:
-                self.rotcounter[2] = 360
-            else:
-                self.rotcounter[2] -= 5
-        elif direction == 2:
+            if self.rotcounter[0] + 5 * x > 360:
+                self.rotcounter[0] -= 360
+            elif self.rotcounter[0] + 5 * x < 0:
+                self.rotcounter[0] += 360
+            self.rotcounter[0] += 5 * x
+        if abs(y) > 0:
+            increment = np.pi / 36 * y
+            sine = np.sin(increment)
+            cosine = np.cos(increment)
             self.rot = np.matmul(self.rot, [[cosine, 0.0, sine], [0.0, 1.0, 0.0], [-sine, 0.0, cosine]])
-            if self.rotcounter[1] + 5 > 360:
-                self.rotcounter[1] = 0
-            else:
-                self.rotcounter[1] += 5
-        elif direction == -2:
-            self.rot = np.matmul(self.rot, [[cosine, 0.0, -sine], [0.0, 1.0, 0.0], [sine, 0.0, cosine]])
-            if self.rotcounter[1] - 5 < 0:
-                self.rotcounter[1] = 360
-            else:
-                self.rotcounter[1] -= 5
-        else:
-            # Wrong direction was passed
-            return False
-        return True
+            if self.rotcounter[1] + 5 * y > 360:
+                self.rotcounter[1] -= 360
+            elif self.rotcounter[1] + 5 * y < 0:
+                self.rotcounter[1] += 360
+            self.rotcounter[1] += 5 * y
+        if abs(z) > 0:
+            increment = np.pi / 36 * z
+            sine = np.sin(increment)
+            cosine = np.cos(increment)
+            self.rot = np.matmul(self.rot, [[cosine, -sine, 0.0], [sine, cosine, 0.0], [0.0, 0.0, 1.0]])
+            if self.rotcounter[2] + 5 * z > 360:
+                self.rotcounter[2] -= 360
+            elif self.rotcounter[2] + 5 * z < 0:
+                self.rotcounter[2] += 360
+            self.rotcounter[2] += 5 * z
+        return abs(x) > 0 or abs(y) > 0 or abs(z) > 0
 
     def navigate(self, dx=0, dy=0):
         """
