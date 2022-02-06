@@ -24,4 +24,4 @@ On the horizon:
 ```sh
 pip install asciimol
 ```
-(Note: Setuptools will install a run script in $HOME/.local/bin/ if you do not install with root permissions, so make sure this is in your path.)
+(Note: pip will install a run script in $HOME/.local/bin/ if you do not install with root permissions, so make sure this directory is part of your $PATH.)
