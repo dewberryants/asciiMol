@@ -16,7 +16,7 @@ class Renderer:
         self.btoggle = len(conf.bonds) > 0
         self.pos = np.array(conf.coordinates)
 
-        self.ztoggle = True
+        self.ztoggle = False
         self.zoom = 1.0
         self.rot = np.identity(3)
         self.rotcounter = [0, 0, 0]
@@ -160,6 +160,7 @@ class Renderer:
         self.rotcounter = [0, 0, 0]
         self.rot = np.identity(3)
         self.m = round(self.width / 2), round(self.height / 2)
+        self.pos = np.array(conf.coordinates)
         return True
 
     def resize(self, height, width):
@@ -199,3 +200,11 @@ class Renderer:
                     self.content[i][j] = "┘,0"
                 else:
                     self.content[i][j] = " ,0"
+
+    def center(self):
+        """
+        Move the internal coordinate matrix to the center of coordinates
+        """
+        center = 1.0 / self.pos.shape[0] * np.sum(self.pos, axis=0)
+        self.pos -= center
+        return True

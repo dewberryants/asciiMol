@@ -1,6 +1,6 @@
 import curses
-from time import sleep
 from math import ceil
+from time import sleep
 
 from asciimol.app.config import conf
 from asciimol.app.renderer import Renderer
@@ -35,7 +35,8 @@ class AsciiMol:
         navbar_string += "[+-] Zoom (%- 3.3f) " % self.renderer.zoom
         navbar_string += "[↔↕] Rotate (%-3.f, %-3.f, %-3.f) " % (x, y, z)
         navbar_string += "[Z] ↔ Y/Z rotation (%s) " % ztoggle_str
-        navbar_string += "[WSAD] Navigate"
+        navbar_string += "[WSAD] Navigate "
+        navbar_string += "[C] Center"
         try:
             self.stdscr.addstr(navbar_string)
         except curses.error:
@@ -53,6 +54,8 @@ class AsciiMol:
                 self.sig_changed = self.renderer.navigate(dx=-ceil(self.renderer.zoom))
             if 68 in keys or 100 in keys:  # D
                 self.sig_changed = self.renderer.navigate(dx=ceil(self.renderer.zoom))
+            if 67 in keys or 99 in keys:  # C
+                self.sig_changed = self.renderer.center()
             if curses.KEY_DOWN in keys:
                 self.sig_changed = self.renderer.rotate(1)
             if curses.KEY_UP in keys:
