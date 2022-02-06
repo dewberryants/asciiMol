@@ -16,11 +16,13 @@ class Renderer:
         self.btoggle = len(conf.bonds) > 0
         self.pos = np.array(conf.coordinates)
 
-        self.ztoggle = True
+        self.ztoggle = False
         self.zoom = 1.0
         self.rot = np.identity(3)
         self.rotcounter = [0, 0, 0]
         self.buffer_scene()
+
+        self.auto_rotate_flags = np.array([False, False, False])
 
     def buffer_scene(self):
         """
@@ -90,53 +92,55 @@ class Renderer:
                             self.content[yk][xk] = "·,%s" % col
         return True
 
-    def rotate(self, direction):
+    def toggle_auto_rotate(self, x=False, y=False, z=False):
+        self.auto_rotate_flags[[x, y, z]] = not all(self.auto_rotate_flags[[x, y, z]])
+
+    def get_auto_rotate(self):
+        return any(self.auto_rotate_flags)
+
+    def auto_rotate(self):
+        if self.auto_rotate_flags[0]:
+            self.rotate(x=0.32)
+        if self.auto_rotate_flags[1]:
+            self.rotate(y=0.32)
+        if self.auto_rotate_flags[2]:
+            self.rotate(z=0.32)
+
+    def rotate(self, x=0.0, y=0.0, z=0.0):
         """
         Set an internal rotation matrix that is applied to the coordinates before every render.
-
-        :param direction: 1 and -1 are x and -x, 2 is either z/y, depending on whether the ztoggle is active or not
         """
-        increment = np.pi / 36
-        sine = np.sin(increment)
-        cosine = np.cos(increment)
-        if direction == 1:
+        if abs(x) > 0:
+            increment = np.pi / 36 * x
+            sine = np.sin(increment)
+            cosine = np.cos(increment)
             self.rot = np.matmul(self.rot, [[1.0, 0.0, 0.0], [0.0, cosine, -sine], [0.0, sine, cosine]])
-            if self.rotcounter[0] + 5 > 360:
-                self.rotcounter[0] = 0
-            self.rotcounter[0] += 5
-        elif direction == -1:
-            self.rot = np.matmul(self.rot, [[1.0, 0.0, 0.0], [0.0, cosine, sine], [0.0, -sine, cosine]])
-            if self.rotcounter[0] - 5 < 0:
-                self.rotcounter[0] = 360
-            self.rotcounter[0] -= 5
-        elif direction == 2 and self.ztoggle:
-            self.rot = np.matmul(self.rot, [[cosine, -sine, 0.0], [sine, cosine, 0.0], [0.0, 0.0, 1.0]])
-            if self.rotcounter[2] + 5 > 360:
-                self.rotcounter[2] = 0
-            else:
-                self.rotcounter[2] += 5
-        elif direction == -2 and self.ztoggle:
-            self.rot = np.matmul(self.rot, [[cosine, sine, 0.0], [-sine, cosine, 0.0], [0.0, 0.0, 1.0]])
-            if self.rotcounter[2] - 5 < 0:
-                self.rotcounter[2] = 360
-            else:
-                self.rotcounter[2] -= 5
-        elif direction == 2:
+            if self.rotcounter[0] + 5 * x > 360:
+                self.rotcounter[0] -= 360
+            elif self.rotcounter[0] + 5 * x < 0:
+                self.rotcounter[0] += 360
+            self.rotcounter[0] += 5 * x
+        if abs(y) > 0:
+            increment = np.pi / 36 * y
+            sine = np.sin(increment)
+            cosine = np.cos(increment)
             self.rot = np.matmul(self.rot, [[cosine, 0.0, sine], [0.0, 1.0, 0.0], [-sine, 0.0, cosine]])
-            if self.rotcounter[1] + 5 > 360:
-                self.rotcounter[1] = 0
-            else:
-                self.rotcounter[1] += 5
-        elif direction == -2:
-            self.rot = np.matmul(self.rot, [[cosine, 0.0, -sine], [0.0, 1.0, 0.0], [sine, 0.0, cosine]])
-            if self.rotcounter[1] - 5 < 0:
-                self.rotcounter[1] = 360
-            else:
-                self.rotcounter[1] -= 5
-        else:
-            # Wrong direction was passed
-            return False
-        return True
+            if self.rotcounter[1] + 5 * y > 360:
+                self.rotcounter[1] -= 360
+            elif self.rotcounter[1] + 5 * y < 0:
+                self.rotcounter[1] += 360
+            self.rotcounter[1] += 5 * y
+        if abs(z) > 0:
+            increment = np.pi / 36 * z
+            sine = np.sin(increment)
+            cosine = np.cos(increment)
+            self.rot = np.matmul(self.rot, [[cosine, -sine, 0.0], [sine, cosine, 0.0], [0.0, 0.0, 1.0]])
+            if self.rotcounter[2] + 5 * z > 360:
+                self.rotcounter[2] -= 360
+            elif self.rotcounter[2] + 5 * z < 0:
+                self.rotcounter[2] += 360
+            self.rotcounter[2] += 5 * z
+        return abs(x) > 0 or abs(y) > 0 or abs(z) > 0
 
     def navigate(self, dx=0, dy=0):
         """
@@ -160,6 +164,7 @@ class Renderer:
         self.rotcounter = [0, 0, 0]
         self.rot = np.identity(3)
         self.m = round(self.width / 2), round(self.height / 2)
+        self.pos = np.array(conf.coordinates)
         return True
 
     def resize(self, height, width):
@@ -199,3 +204,30 @@ class Renderer:
                     self.content[i][j] = "┘,0"
                 else:
                     self.content[i][j] = " ,0"
+
+    def center(self):
+        """
+        Move the internal coordinate matrix to the center of coordinates
+        """
+        center = 1.0 / self.pos.shape[0] * np.sum(self.pos, axis=0)
+        self.pos -= center
+        return True
+
+    def prinicple_axes(self):
+        """
+        Transform to principle axes of rotation
+        """
+        self.center()
+        x, y, z = np.transpose(self.pos)
+        xx = np.sum(y * y + z * z)
+        yy = np.sum(x * x + z * z)
+        zz = np.sum(x * x + y * y)
+        xy = -np.sum(x * y)
+        yz = -np.sum(y * z)
+        xz = -np.sum(x * z)
+        i = np.array([[xx, xy, xz], [xy, yy, yz], [xz, yz, zz]])
+        w, t = np.linalg.eig(i)
+        # Einstein Summation: for the 3x3 matrix t, multiply row j with each of the k rows in pos and sum
+        # this is essentially just a basis transformation to the principle axes coordinate system.
+        self.pos = np.einsum('ij,kj->ki', np.linalg.inv(t), self.pos)
+        return True

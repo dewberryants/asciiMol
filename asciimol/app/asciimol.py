@@ -1,6 +1,6 @@
 import curses
-from time import sleep
 from math import ceil
+from time import sleep
 
 from asciimol.app.config import conf
 from asciimol.app.renderer import Renderer
@@ -30,12 +30,15 @@ class AsciiMol:
     def draw_navbar(self):
         x, y, z = self.renderer.rotcounter
         ztoggle_str = "Z" if self.renderer.ztoggle else "Y"
-        navbar_string = "[Q]uit [R]eset View"
-        navbar_string += " [B]onds %s " % ("on " if self.renderer.btoggle else "off")
+        navbar_string = "[Q]uit [R]eset "
+        navbar_string += "[B]onds %s " % ("on " if self.renderer.btoggle else "off")
         navbar_string += "[+-] Zoom (%- 3.3f) " % self.renderer.zoom
         navbar_string += "[↔↕] Rotate (%-3.f, %-3.f, %-3.f) " % (x, y, z)
         navbar_string += "[Z] ↔ Y/Z rotation (%s) " % ztoggle_str
-        navbar_string += "[WSAD] Navigate"
+        navbar_string += "[WSAD] Navigate "
+        navbar_string += "[C] Center "
+        navbar_string += "[T] Principle Axes "
+        navbar_string += "[F1-3] Auto-Rotate"
         try:
             self.stdscr.addstr(navbar_string)
         except curses.error:
@@ -53,14 +56,24 @@ class AsciiMol:
                 self.sig_changed = self.renderer.navigate(dx=-ceil(self.renderer.zoom))
             if 68 in keys or 100 in keys:  # D
                 self.sig_changed = self.renderer.navigate(dx=ceil(self.renderer.zoom))
+            if 67 in keys or 99 in keys:  # C
+                self.sig_changed = self.renderer.center()
+            if 84 in keys or 116 in keys:  # T
+                self.sig_changed = self.renderer.prinicple_axes()
+            if curses.KEY_F1 in keys:  # F1
+                self.renderer.toggle_auto_rotate(x=True)
+            if curses.KEY_F2 in keys:  # F2
+                self.renderer.toggle_auto_rotate(y=True)
+            if curses.KEY_F3 in keys:  # F3
+                self.renderer.toggle_auto_rotate(z=True)
             if curses.KEY_DOWN in keys:
-                self.sig_changed = self.renderer.rotate(1)
+                self.sig_changed = self.renderer.rotate(x=1)
             if curses.KEY_UP in keys:
-                self.sig_changed = self.renderer.rotate(-1)
+                self.sig_changed = self.renderer.rotate(x=-1)
             if curses.KEY_LEFT in keys:
-                self.sig_changed = self.renderer.rotate(2)
+                self.sig_changed = self.renderer.rotate(z=1) if self.renderer.ztoggle else self.renderer.rotate(y=1)
             if curses.KEY_RIGHT in keys:
-                self.sig_changed = self.renderer.rotate(-2)
+                self.sig_changed = self.renderer.rotate(z=-1) if self.renderer.ztoggle else self.renderer.rotate(y=-1)
             if 43 in keys:  # +
                 self.sig_changed = self.renderer.modify_zoom(0.1)
             if 45 in keys:  # -
@@ -91,6 +104,10 @@ class AsciiMol:
                 self.renderer.resize(curses.LINES, curses.COLS)
                 self.sig_changed = True
             self.frames = 0
+        # Auto-Rotation at 30 fps to reduce workload
+        if self.renderer.get_auto_rotate() and self.frames % 2 == 0:
+            self.renderer.auto_rotate()
+            self.sig_changed = True
         if self.sig_changed:
             try:
                 self.renderer.buffer_scene()
