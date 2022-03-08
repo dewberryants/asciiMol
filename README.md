@@ -8,7 +8,7 @@ A basic molecule viewer written in Python, using curses; Thus, meant for linux t
 
 This is an alpha version, featuring:
 
-* Opening default cartesian .xyz files
+* Opening default cartesian .xyz files or SMILES strings
 * Displaying one-letter atom labels
 * Orthographic view
 * Navigation
