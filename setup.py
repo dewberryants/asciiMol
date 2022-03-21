@@ -27,5 +27,8 @@ setup(
         "Operating System :: OS Independent",
         "Topic :: Scientific/Engineering :: Chemistry"
     ],
-    entry_points={"console_scripts": ["asciimol = asciimol:run_asciimol"]}
+    entry_points={"console_scripts": ["asciimol = asciimol:run_asciimol"]},
+    extras_require={
+        'formats': ['ase']
+    }
 )
