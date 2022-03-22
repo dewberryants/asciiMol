@@ -71,9 +71,10 @@ class Config:
 def read_smiles(smiles):
     from rdkit.Chem import AllChem, MolFromSmiles, AddHs
     from rdkit.Chem.rdmolfiles import MolToXYZBlock
-    mol = AddHs(MolFromSmiles(smiles))
+    mol = MolFromSmiles(smiles)
     if mol is None:
         return False, None, None
+    mol = AddHs(mol)
     AllChem.EmbedMolecule(mol)
     with tempfile.NamedTemporaryFile('w+') as temp:
         temp.writelines(MolToXYZBlock(mol))
