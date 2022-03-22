@@ -60,11 +60,11 @@ class AsciiMol:
                 self.sig_changed = self.renderer.center()
             if 84 in keys or 116 in keys:  # T
                 self.sig_changed = self.renderer.prinicple_axes()
-            if curses.KEY_F1 in keys:  # F1
+            if curses.KEY_F1 in keys:
                 self.renderer.toggle_auto_rotate(x=True)
-            if curses.KEY_F2 in keys:  # F2
+            if curses.KEY_F2 in keys:
                 self.renderer.toggle_auto_rotate(y=True)
-            if curses.KEY_F3 in keys:  # F3
+            if curses.KEY_F3 in keys:
                 self.renderer.toggle_auto_rotate(z=True)
             if curses.KEY_DOWN in keys:
                 self.sig_changed = self.renderer.rotate(x=1)
