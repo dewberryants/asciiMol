@@ -1,8 +1,9 @@
 import argparse
+import tempfile
 
 from asciimol.app import map_colors, map_radii
 from asciimol.app.colors import init_curses_color_pairs
-import tempfile
+
 
 class Config:
     """
@@ -18,7 +19,8 @@ class Config:
 
     def parse(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument('XYZFILE', metavar='XYZFILE or SMILES', type=str, help='Specify an .xyz file or a SMILES string (e.g., CC) to open and display.')
+        parser.add_argument('XYZFILE', metavar='XYZFILE or SMILES', type=str,
+                            help='Specify an .xyz file or a SMILES string (e.g., CC) to open and display.')
         opts = parser.parse_args()
         if not opts.XYZFILE.endswith('.xyz'):
             # Assume input is a SMILES string
@@ -35,7 +37,7 @@ class Config:
         from rdkit import Chem
         from rdkit.Chem import AllChem
         from rdkit.Chem.rdmolfiles import MolToXYZBlock
-        
+
         mol = Chem.AddHs(Chem.MolFromSmiles(smiles))
         AllChem.EmbedMolecule(mol)
         return MolToXYZBlock(mol)
