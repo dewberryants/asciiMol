@@ -22,25 +22,18 @@ class Config:
         parser.add_argument('XYZFILE', metavar='XYZFILE or SMILES', type=str,
                             help='Specify an .xyz file or a SMILES string (e.g., CC) to open and display.')
         opts = parser.parse_args()
-        if not opts.XYZFILE.endswith('.xyz'):
-            # Assume input is a SMILES string
-            with tempfile.NamedTemporaryFile('w+') as temp:
-                temp.writelines(self.parse_smiles(opts.XYZFILE))
-                temp.seek(0)
-                proceed, self.coordinates, self.symbols = read_xyz(temp)
-        else:
-            with open(opts.XYZFILE, "r") as xyzfile:
-                proceed, self.coordinates, self.symbols = read_xyz(xyzfile)
+        try:
+            with open(opts.XYZFILE, "r") as handle:
+                proceed, self.coordinates, self.symbols = read_xyz(handle)
+        except ValueError:
+            print("ERROR: Could not read '%s' as xyz file." % opts.XYZFILE)
+            return False
+        except FileNotFoundError:
+            proceed, self.coordinates, self.symbols = read_smiles(opts.XYZFILE)
+            if not proceed:
+                print("ERROR: File '%s' not found and not a valid SMILES code!" % opts.XYZFILE)
+                return False
         return proceed
-
-    def parse_smiles(self, smiles):
-        from rdkit import Chem
-        from rdkit.Chem import AllChem
-        from rdkit.Chem.rdmolfiles import MolToXYZBlock
-
-        mol = Chem.AddHs(Chem.MolFromSmiles(smiles))
-        AllChem.EmbedMolecule(mol)
-        return MolToXYZBlock(mol)
 
     def post_setup(self):
         self._setup_bonds()
@@ -75,19 +68,32 @@ class Config:
         self.colors = list(init_curses_color_pairs(colors))
 
 
+def read_smiles(smiles):
+    from rdkit.Chem import AllChem, MolFromSmiles, AddHs
+    from rdkit.Chem.rdmolfiles import MolToXYZBlock
+    mol = AddHs(MolFromSmiles(smiles))
+    if mol is None:
+        return False, None, None
+    AllChem.EmbedMolecule(mol)
+    with tempfile.NamedTemporaryFile('w+') as temp:
+        temp.writelines(MolToXYZBlock(mol))
+        temp.seek(0)
+        return read_xyz(temp)
+
+
 def read_xyz(handle):
     line = handle.readline()
     try:
         atms = int(line.strip())
     except ValueError:
         print("XYZ FORMAT ERROR: Could not read atom number.")
-        return False, None, None
+        raise ValueError
     pos, sym = [], []
     handle.readline()  # Unused Comment line
     for n in range(atms):
         if line == "":
             print("XYZ FORMAT ERROR: Unexpected EOF. Atoms and Atom Number in line 1 mismatch!")
-            return False, None, None
+            raise ValueError
         line = handle.readline()
         work = line.strip().split()
         try:
@@ -95,7 +101,7 @@ def read_xyz(handle):
             pos.append([float(work[1]), float(work[2]), float(work[3])])
         except IndexError:
             print("XYZ FORMAT ERROR: Line '%s' is not formatted correctly." % line)
-            return False, None, None
+            raise ValueError
     return True, pos, sym
 
 
