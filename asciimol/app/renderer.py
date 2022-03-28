@@ -1,10 +1,8 @@
 import numpy as np
 
-from asciimol.app.config import conf
-
 
 class Renderer:
-    def __init__(self, height, width):
+    def __init__(self, height, width, config):
         self.height = height
         self.width = width
         self.content = None
@@ -13,8 +11,9 @@ class Renderer:
         self.f = 1.0
         self.resize(height, width)
 
-        self.btoggle = len(conf.bonds) > 0
-        self.pos = np.array(conf.coordinates)
+        self.config = config
+        self.btoggle = len(self.config.bonds) > 0
+        self.pos = np.array(self.config.coordinates)
 
         self.ztoggle = False
         self.zoom = 1.0
@@ -35,7 +34,7 @@ class Renderer:
         rot = np.matmul(self.pos, self.rot)
         self.clear()
         # Draw bonds
-        for bond in conf.bonds:
+        for bond in self.config.bonds:
             i, j = bond
             # if bond is (i, j) with i == j, just draw the label (no bonds)
             if i == j:
@@ -43,7 +42,7 @@ class Renderer:
                 xp, yp = round(float(x) * self.f * self.zoom + mx), round(float(y) * self.zoom + my)
                 if 1 < xp < self.width - 2 and 1 < yp < self.height - 3 and float(z) < self.zbuffer[yp][xp]:
                     self.zbuffer[yp][xp] = float(z)
-                    self.content[yp][xp] = conf.symbols[0].upper() + "," + conf.colors[i]
+                    self.content[yp][xp] = self.config.symbols[0].upper() + "," + self.config.colors[i]
             # else draw the bond with the labels at the end points
             else:
                 # Draw the two labels at the end points
@@ -57,10 +56,10 @@ class Renderer:
                 xbp, ybp = round(xb), round(yb)
                 if 1 < xap < self.width - 2 and 1 < yap < self.height - 3 and float(za) < self.zbuffer[yap][xap]:
                     self.zbuffer[yap][xap] = float(za)
-                    self.content[yap][xap] = conf.symbols[i].upper() + "," + conf.colors[i]
+                    self.content[yap][xap] = self.config.symbols[i].upper() + "," + self.config.colors[i]
                 if 1 < xbp < self.width - 2 and 1 < ybp < self.height - 3 and float(zb) < self.zbuffer[ybp][xbp]:
                     self.zbuffer[ybp][xbp] = float(zb)
-                    self.content[ybp][xbp] = conf.symbols[j].upper() + "," + conf.colors[j]
+                    self.content[ybp][xbp] = self.config.symbols[j].upper() + "," + self.config.colors[j]
                 if not self.btoggle:
                     continue
                 # Then start at xap+1 and go to xbp-1, drawing line segments
@@ -77,7 +76,7 @@ class Renderer:
                         zk = round((float(za) + sz * k * dz))
                         if 1 < xk < self.width - 2 and 1 < yk < self.height - 3 and float(zk) < \
                                 self.zbuffer[yk][xk]:
-                            col = conf.colors[i] if k < abs(xap - xbp) / 2 else conf.colors[j]
+                            col = self.config.colors[i] if k < abs(xap - xbp) / 2 else self.config.colors[j]
                             self.zbuffer[yk][xk] = float(zk)
                             self.content[yk][xk] = "·,%s" % col
                 else:
@@ -87,7 +86,7 @@ class Renderer:
                         zk = round((float(za) + sz * k * dz))
                         if 1 < xk < self.width - 2 and 1 < yk < self.height - 3 and float(zk) < \
                                 self.zbuffer[yk][xk]:
-                            col = conf.colors[i] if k < abs(yap - ybp) / 2 else conf.colors[j]
+                            col = self.config.colors[i] if k < abs(yap - ybp) / 2 else self.config.colors[j]
                             self.zbuffer[yk][xk] = float(zk)
                             self.content[yk][xk] = "·,%s" % col
         return True

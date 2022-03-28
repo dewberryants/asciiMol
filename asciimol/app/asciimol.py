@@ -2,8 +2,8 @@ import curses
 from math import ceil
 from time import sleep
 
-from asciimol.app.config import conf
 from asciimol.app.renderer import Renderer
+from asciimol.app.config import Config
 
 
 class AsciiMol:
@@ -11,6 +11,7 @@ class AsciiMol:
         self.stdscr = None
         self.renderer = None
         self.sig_changed = True
+        self.config = Config()
         self.frames = 0
         self.timeout = 0
 
@@ -123,11 +124,11 @@ class AsciiMol:
 
     def main_loop(self, main_screen):
         # The internal color setup requires curses to be initialized first
-        conf.post_setup()
+        self.config.post_setup()
         # Save curses main screen for reference
         self.stdscr = main_screen
         # Init a new renderer of appropriate size
-        self.renderer = Renderer(curses.LINES, curses.COLS)
+        self.renderer = Renderer(curses.LINES, curses.COLS, self.config)
         # Turns off cursor
         curses.curs_set(0)
         # Turns off hangup on input polling
@@ -143,6 +144,6 @@ class AsciiMol:
                 running = False
 
     def run(self):
-        if conf.parse():
+        if self.config.parse():
             curses.wrapper(self.main_loop)
         return 0

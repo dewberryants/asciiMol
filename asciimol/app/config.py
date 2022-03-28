@@ -7,8 +7,7 @@ from asciimol.app.colors import init_curses_color_pairs
 
 class Config:
     """
-    The runtime configuration object. This is meant to be used as a singleton.
-    Contains currently opened file, as well as any other configurables.
+    The runtime configuration object. Contains currently opened file, as well as any other configurables.
     """
 
     def __init__(self):
@@ -104,8 +103,3 @@ def read_xyz(handle):
             print("XYZ FORMAT ERROR: Line '%s' is not formatted correctly." % line)
             raise ValueError
     return True, pos, sym
-
-
-conf = Config()
-
-__all__ = [conf]
