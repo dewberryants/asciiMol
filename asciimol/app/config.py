@@ -74,7 +74,10 @@ def read_smiles(smiles):
         return False, None, None
     mol = AddHs(mol)
     AllChem.EmbedMolecule(mol)
-    return read_xyz_block(MolToXYZBlock(mol))
+    try:
+        return read_xyz_block(MolToXYZBlock(mol).strip().split("\n"))
+    except ValueError:
+        return False, None, None
 
 
 def read_xyz(handle):
@@ -92,9 +95,6 @@ def read_xyz_block(string_list):
         print("XYZ FORMAT ERROR: Could not read atom number.")
         raise ValueError
     pos, sym = [], []
-    if len(string_list) != atms+2:
-        print("XYZ FORMAT ERROR: Missing atoms or too many atoms compared to ATMNUM in line 1!")
-        raise ValueError
     for line in string_list[2:atms+2]:
         work = line.strip().split()
         try:
