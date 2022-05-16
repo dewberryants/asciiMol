@@ -163,7 +163,7 @@ class Renderer:
         self.rotcounter = [0, 0, 0]
         self.rot = np.identity(3)
         self.m = round(self.width / 2), round(self.height / 2)
-        self.pos = np.array(conf.coordinates)
+        self.pos = np.array(self.config.coordinates)
         return True
 
     def resize(self, height, width):
