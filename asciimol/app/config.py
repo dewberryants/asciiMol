@@ -1,5 +1,4 @@
 import argparse
-import tempfile
 
 from asciimol.app import map_colors, map_radii
 from asciimol.app.colors import init_curses_color_pairs
@@ -75,26 +74,28 @@ def read_smiles(smiles):
         return False, None, None
     mol = AddHs(mol)
     AllChem.EmbedMolecule(mol)
-    with tempfile.NamedTemporaryFile('w+') as temp:
-        temp.writelines(MolToXYZBlock(mol))
-        temp.seek(0)
-        return read_xyz(temp)
+    return read_xyz_block(MolToXYZBlock(mol))
 
 
 def read_xyz(handle):
-    line = handle.readline()
+    content = handle.readlines()
     try:
-        atms = int(line.strip())
+        return read_xyz_block(content)
+    except ValueError:
+        return False, None, None
+
+
+def read_xyz_block(string_list):
+    try:
+        atms = int(string_list[0])
     except ValueError:
         print("XYZ FORMAT ERROR: Could not read atom number.")
         raise ValueError
     pos, sym = [], []
-    handle.readline()  # Unused Comment line
-    for n in range(atms):
-        if line == "":
-            print("XYZ FORMAT ERROR: Unexpected EOF. Atoms and Atom Number in line 1 mismatch!")
-            raise ValueError
-        line = handle.readline()
+    if len(string_list) != atms+2:
+        print("XYZ FORMAT ERROR: Missing atoms or too many atoms compared to ATMNUM in line 1!")
+        raise ValueError
+    for line in string_list[2:atms+2]:
         work = line.strip().split()
         try:
             sym.append(work[0])
