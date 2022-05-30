@@ -10,13 +10,13 @@ packages = find_packages()
 
 setup(
     name='asciimol',
-    version='0.4.0',
+    version='0.5.0',
     description='An ASCII molecule viewer.',
     long_description=readme,
     long_description_content_type="text/markdown",
     author='Dominik Behrens',
     author_email='dewberryants@gmail.com',
-    install_requires=['numpy', 'rdkit-pypi'],
+    install_requires=['numpy'],
     url='https://github.com/dewberryants/asciimol',
     license=lic,
     packages=find_packages(exclude="docs"),
@@ -29,6 +29,7 @@ setup(
     ],
     entry_points={"console_scripts": ["asciimol = asciimol:run_asciimol"]},
     extras_require={
-        'formats': ['ase']
+        'formats': ['ase'],
+        'smiles': ['rdkit-pypi']
     }
 )

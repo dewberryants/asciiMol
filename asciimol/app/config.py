@@ -27,10 +27,13 @@ class Config:
             print("ERROR: Could not read '%s' as xyz file." % opts.XYZFILE)
             return False
         except FileNotFoundError:
-            proceed, self.coordinates, self.symbols = read_smiles(opts.XYZFILE)
-            if not proceed:
-                print("ERROR: File '%s' not found and not a valid SMILES code!" % opts.XYZFILE)
-                return False
+            try:
+                proceed, self.coordinates, self.symbols = read_smiles(opts.XYZFILE)
+                if not proceed:
+                    print("ERROR: File '%s' not found and not a valid SMILES code!" % opts.XYZFILE)
+                    return False
+            except ImportError:
+                print("ERROR: File '%s' not found and no valid SMILES interpreter!" % opts.XYZFILE)
         return proceed
 
     def post_setup(self):
