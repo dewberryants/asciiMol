@@ -48,6 +48,7 @@ def handle_io(input_string: str):
             if not proceed:
                 print("ERROR: File '%s' not found and not a valid SMILES code!" % input_string)
                 return False, None, None
+            return proceed, pos, sym
     else:  # Using both
         try:
             atms = read(input_string)
@@ -57,6 +58,7 @@ def handle_io(input_string: str):
             if not proceed:
                 print("ERROR: File '%s' not found and not a valid SMILES code!" % input_string)
                 return False, None, None
+            return proceed, pos, sym
 
 
 def read_smiles(smiles):
