@@ -8,20 +8,27 @@ A basic molecule viewer written in Python, using curses; Thus, meant for linux t
 
 This is an alpha version, featuring:
 
-* Opening default cartesian .xyz files or SMILES strings
+* Opening default cartesian .xyz files
 * Displaying one-letter atom labels
 * Orthographic view
 * Navigation
 * Zoom, Rotation, Auto-Rotation
 * Bond detection and display
-
-On the horizon:
-* Perspective / Orthographic view toggle
-* More formats
+* Optional integration of ASE and RDKit pypi packages for more formats and SMILES
 
 ## Installation
 
 ```sh
 pip install asciimol
 ```
-(Note: pip will install a run script in $HOME/.local/bin/ if you do not install with root permissions, so make sure this directory is part of your $PATH.)
+
+(Note: pip will install a run script in $HOME/.local/bin/ if you do not install with root permissions, so make sure this
+directory is part of your $PATH.)
+
+You can also run
+
+```sh
+pip install asciimol[formats,smiles]
+```
+
+to automatically install ASE for formats and RDKit for smiles.
