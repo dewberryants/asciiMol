@@ -19,6 +19,7 @@ class Renderer:
         self.zoom = 1.0
         self.rot = np.identity(3)
         self.rotcounter = [0, 0, 0]
+        self.reset_view()
         self.buffer_scene()
 
         self.auto_rotate_flags = np.array([False, False, False])
@@ -159,11 +160,16 @@ class Renderer:
         """
         Reset the view to the starting values.
         """
-        self.zoom = 1.0
         self.rotcounter = [0, 0, 0]
         self.rot = np.identity(3)
-        self.m = round(self.width / 2), round(self.height / 2)
+        self.m = round((self.width - 2) / 2), round((self.height - 2) / 2)
         self.pos = np.array(self.config.coordinates)
+        self.center()
+        dx = np.max(self.pos[:, 0]) - np.min(self.pos[:, 0])
+        dy = np.max(self.pos[:, 1]) - np.min(self.pos[:, 1])
+        fx = 0.9 * self.m[0] / (2.25 * dx)
+        fy = 0.9 * self.m[1] / dy
+        self.zoom = fx if fx > fy else fy
         return True
 
     def resize(self, height, width):
@@ -174,7 +180,7 @@ class Renderer:
         self.width = width
         self.content = [[" ,0"] * self.width for _ in range(self.height - 2)]
         self.zbuffer = [[10000.0] * self.width for _ in range(self.height - 2)]
-        self.m = round(self.width / 2), round(self.height / 2)
+        self.m = round((self.width - 2) / 2), round((self.height - 2) / 2)
         # Since terminal characters are higher than wide, I correct for this by multiplying the x by f
         # so that it appears wider. 2.25 is what looks good on my terminals, but might be
         # nice to have a general way of determining the optimal value

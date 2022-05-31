@@ -110,8 +110,8 @@ class AsciiMol:
             self.renderer.auto_rotate()
             self.sig_changed = True
         if self.sig_changed:
+            self.renderer.buffer_scene()
             try:
-                self.renderer.buffer_scene()
                 self.redraw()
                 self.timeout = 0
             except curses.error:
