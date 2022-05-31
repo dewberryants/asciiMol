@@ -37,7 +37,6 @@ class AsciiMol:
         navbar_string += "[↔↕] Rotate (%-3.f, %-3.f, %-3.f) " % (x, y, z)
         navbar_string += "[Z] ↔ Y/Z rotation (%s) " % ztoggle_str
         navbar_string += "[WSAD] Navigate "
-        navbar_string += "[C] Center "
         navbar_string += "[T] Principle Axes "
         navbar_string += "[F1-3] Auto-Rotate"
         try:
@@ -57,8 +56,6 @@ class AsciiMol:
                 self.sig_changed = self.renderer.navigate(dx=-ceil(self.renderer.zoom))
             if 68 in keys or 100 in keys:  # D
                 self.sig_changed = self.renderer.navigate(dx=ceil(self.renderer.zoom))
-            if 67 in keys or 99 in keys:  # C
-                self.sig_changed = self.renderer.center()
             if 84 in keys or 116 in keys:  # T
                 self.sig_changed = self.renderer.prinicple_axes()
             if curses.KEY_F1 in keys:
