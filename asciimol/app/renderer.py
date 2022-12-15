@@ -5,8 +5,7 @@ class Renderer:
     def __init__(self, height, width, config):
         self.height = height
         self.width = width
-        self.content = None
-        self.zbuffer = None
+        self.content = dict()
         self.m = None
         self.f = 1.0
         self.resize(height, width)
@@ -41,9 +40,9 @@ class Renderer:
             if i == j:
                 x, y, z = rot[i]
                 xp, yp = round(float(x) * self.f * self.zoom + mx), round(float(y) * self.zoom + my)
-                if 1 < xp < self.width - 2 and 1 < yp < self.height - 3 and float(z) < self.zbuffer[yp][xp]:
-                    self.zbuffer[yp][xp] = float(z)
-                    self.content[yp][xp] = self.config.symbols[0].upper() + "," + self.config.colors[i]
+                zbuf = self.content[yp, xp][2] if (yp, xp) in self.content else float("inf")
+                if 1 < xp < self.width - 2 and 1 < yp < self.height - 3 and float(z) < zbuf:
+                    self.content[yp, xp] = (self.config.symbols[0].upper(), self.config.colors[i], float(z))
             # else draw the bond with the labels at the end points
             else:
                 # Draw the two labels at the end points
@@ -55,12 +54,12 @@ class Renderer:
                 yb = float(yb) * self.zoom + my
                 xap, yap = round(xa), round(ya)
                 xbp, ybp = round(xb), round(yb)
-                if 1 < xap < self.width - 2 and 1 < yap < self.height - 3 and float(za) < self.zbuffer[yap][xap]:
-                    self.zbuffer[yap][xap] = float(za)
-                    self.content[yap][xap] = self.config.symbols[i].upper() + "," + self.config.colors[i]
-                if 1 < xbp < self.width - 2 and 1 < ybp < self.height - 3 and float(zb) < self.zbuffer[ybp][xbp]:
-                    self.zbuffer[ybp][xbp] = float(zb)
-                    self.content[ybp][xbp] = self.config.symbols[j].upper() + "," + self.config.colors[j]
+                zbuf = self.content[yap, xap][2] if (yap, xap) in self.content else float("inf")
+                if 1 < xap < self.width - 2 and 1 < yap < self.height - 3 and float(za) < zbuf:
+                    self.content[yap, xap] = (self.config.symbols[i].upper(), self.config.colors[i], float(za))
+                zbuf = self.content[ybp, xbp][2] if (ybp, xbp) in self.content else float("inf")
+                if 1 < xbp < self.width - 2 and 1 < ybp < self.height - 3 and float(zb) < zbuf:
+                    self.content[ybp, xbp] = (self.config.symbols[j].upper(), self.config.colors[j], float(zb))
                 if not self.btoggle:
                     continue
                 # Then start at xap+1 and go to xbp-1, drawing line segments
@@ -75,21 +74,19 @@ class Renderer:
                         xk = xap + sx * k
                         yk = round(float(ya) + sx * k * dy)
                         zk = round((float(za) + sz * k * dz))
-                        if 1 < xk < self.width - 2 and 1 < yk < self.height - 3 and float(zk) < \
-                                self.zbuffer[yk][xk]:
+                        zbuf = self.content[yk, xk][2] if (yk, xk) in self.content else float("inf")
+                        if 1 < xk < self.width - 2 and 1 < yk < self.height - 3 and float(zk) < zbuf:
                             col = self.config.colors[i] if k < abs(xap - xbp) / 2 else self.config.colors[j]
-                            self.zbuffer[yk][xk] = float(zk)
-                            self.content[yk][xk] = "·,%s" % col
+                            self.content[yk, xk] = ("·", col, float(zk))
                 else:
                     for k in range(1, abs(yap - ybp)):
                         xk = round((float(xa) + sy * k * dx))
                         yk = yap + sy * k
                         zk = round((float(za) + sz * k * dz))
-                        if 1 < xk < self.width - 2 and 1 < yk < self.height - 3 and float(zk) < \
-                                self.zbuffer[yk][xk]:
+                        zbuf = self.content[yk, xk][2] if (yk, xk) in self.content else float("inf")
+                        if 1 < xk < self.width - 2 and 1 < yk < self.height - 3 and float(zk) < zbuf:
                             col = self.config.colors[i] if k < abs(yap - ybp) / 2 else self.config.colors[j]
-                            self.zbuffer[yk][xk] = float(zk)
-                            self.content[yk][xk] = "·,%s" % col
+                            self.content[yk, xk] = ("·", col, float(zk))
         return True
 
     def toggle_auto_rotate(self, x=False, y=False, z=False):
@@ -178,8 +175,6 @@ class Renderer:
         """
         self.height = height
         self.width = width
-        self.content = [[" ,0"] * self.width for _ in range(self.height - 2)]
-        self.zbuffer = [[10000.0] * self.width for _ in range(self.height - 2)]
         self.m = round((self.width - 2) / 2), round((self.height - 2) / 2)
         # Since terminal characters are higher than wide, I correct for this by multiplying the x by f
         # so that it appears wider. 2.25 is what looks good on my terminals, but might be
@@ -190,25 +185,21 @@ class Renderer:
         """
         Clear the canvas and redraw the border.
         """
-        for i in range(self.height - 2):
-            for j in range(self.width):
-                self.zbuffer[i][j] = 10000.0
+        self.content = dict()
         for i in range(self.height - 2):
             for j in range(self.width):
                 if i == 0 and j == 0:
-                    self.content[i][j] = "┌,0"
+                    self.content[i, j] = ("┌", 0, -1)
                 elif (i == 0 or i == self.height - 3) and 0 < j < self.width - 1:
-                    self.content[i][j] = "─,0"
+                    self.content[i, j] = ("─", 0, -1)
                 elif i == 0 and j == self.width - 1:
-                    self.content[i][j] = "┐,0"
+                    self.content[i, j] = ("┐", 0, -1)
                 elif i < self.height - 3 and (j == 0 or j == self.width - 1):
-                    self.content[i][j] = "│,0"
+                    self.content[i, j] = ("│", 0, -1)
                 elif i == self.height - 3 and j == 0:
-                    self.content[i][j] = "└,0"
+                    self.content[i, j] = ("└", 0, -1)
                 elif i == self.height - 3 and j == self.width - 1:
-                    self.content[i][j] = "┘,0"
-                else:
-                    self.content[i][j] = " ,0"
+                    self.content[i, j] = ("┘", 0, -1)
 
     def center(self):
         """
