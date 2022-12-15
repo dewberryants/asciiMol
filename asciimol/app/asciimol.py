@@ -17,16 +17,17 @@ class AsciiMol:
 
     def redraw(self):
         self.stdscr.clear()
-        self.draw_characters(self.renderer.content)
+        self.draw_renderer_buffer()
         self.draw_navbar()
         self.stdscr.refresh()
         self.sig_changed = False
 
-    def draw_characters(self, content: list):
-        for i in range(curses.LINES - 2):
-            for j in range(curses.COLS):
-                char, col = content[i][j].split(",")
-                self.stdscr.addstr(i, j, char, int(col))
+    def draw_renderer_buffer(self):
+        content = self.renderer.content
+        for key in content:
+            y, x = key
+            char, col, _ = content[key]
+            self.stdscr.addstr(y, x, char, int(col))
 
     def draw_navbar(self):
         x, y, z = self.renderer.rotcounter
@@ -40,7 +41,7 @@ class AsciiMol:
         navbar_string += "[T] Principle Axes "
         navbar_string += "[F1-3] Auto-Rotate"
         try:
-            self.stdscr.addstr(navbar_string)
+            self.stdscr.addstr(curses.LINES - 2, 0, navbar_string)
         except curses.error:
             if curses.LINES > 1 and curses.COLS > 3:
                 self.stdscr.addstr(curses.LINES - 1, curses.COLS - 4, "...")
