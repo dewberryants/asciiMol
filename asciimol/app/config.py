@@ -1,5 +1,7 @@
 import argparse
 
+import numpy as np
+
 from asciimol.app import map_colors, map_radii
 from asciimol.app.colors import init_curses_color_pairs
 from asciimol.app.io import handle_io
@@ -31,24 +33,19 @@ class Config:
     def _setup_bonds(self):
         if self.bonds:
             return
-        atms = len(self.symbols)
-        radii = list(map_radii(self.symbols))
-        bonds = []
-        unbound = list(range(atms))
-        for i in range(atms):
-            for j in range(i):
-                xa, ya, za = self.coordinates[i]
-                xb, yb, zb = self.coordinates[j]
-                rsq = (radii[i] + radii[j] + 0.41) ** 2
-                dist = (xa - xb) ** 2 + (ya - yb) ** 2 + (za - zb) ** 2
-                if dist < rsq or dist < 0.4:
-                    bonds.append((i, j))
-                    unbound[i] = -1
-                    unbound[j] = -1
-        for n, state in enumerate(unbound):
-            if state != -1:
-                bonds += [(n, n)]
-        self.bonds = bonds
+        radii = np.array(list(map_radii(self.symbols)), dtype='float32')
+        xyz = np.array(self.coordinates, dtype='float32')
+        rsq = (radii[..., np.newaxis] + radii + 0.41) ** 2
+        dx = xyz[:, 0, np.newaxis] - xyz[:, 0]
+        dy = xyz[:, 1, np.newaxis] - xyz[:, 1]
+        dz = xyz[:, 2, np.newaxis] - xyz[:, 2]
+        dsq = dx ** 2 + dy ** 2 + dz ** 2
+        np.fill_diagonal(dsq, np.inf)
+        bonds = np.argwhere(np.triu(dsq) < np.triu(rsq))
+        bound = np.isin(np.arange(len(self.symbols)), bonds[:, 0]) + \
+            np.isin(np.arange(len(self.symbols)), bonds[:, 1])
+        unbound = np.hstack((np.argwhere(bound == 0), np.argwhere(bound == 0)))
+        self.bonds = np.vstack((bonds, unbound))
 
     def _setup_colors(self):
         if self.colors:
