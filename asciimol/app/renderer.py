@@ -49,8 +49,8 @@ class Renderer:
                 xb, yb, zb = rot[j]
                 xb = float(xb) * self.f * self.zoom + mx
                 yb = float(yb) * self.zoom + my
-                xap, yap = round(xa), round(ya)
-                xbp, ybp = round(xb), round(yb)
+                xap, yap = int(round(xa)), int(round(ya))
+                xbp, ybp = int(round(xb)), int(round(yb))
                 # If desired, draw bonds by starting at xap+1 and going to xbp-1, drawing line segments
                 if self.btoggle < 2:
                     sy = -1 if ya > yb else 1
