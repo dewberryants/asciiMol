@@ -10,7 +10,7 @@ packages = find_packages()
 
 setup(
     name='asciimol',
-    version='1.0.0-b',
+    version='1.1.0',
     description='An ASCII molecule viewer.',
     long_description=readme,
     long_description_content_type="text/markdown",
