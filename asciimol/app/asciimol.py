@@ -33,7 +33,7 @@ class AsciiMol:
         x, y, z = self.renderer.rotcounter
         ztoggle_str = "Z" if self.renderer.ztoggle else "Y"
         navbar_string = "[Q]uit [R]eset "
-        navbar_string += "[B]onds %s " % ("on " if self.renderer.btoggle else "off")
+        navbar_string += "[B]onds %s " % {0: "-", 1: ".", 2: " "}[self.renderer.btoggle]
         navbar_string += "[+-] Zoom (%- 3.3f) " % self.renderer.zoom
         navbar_string += "[↔↕] Rotate (%-3.f, %-3.f, %-3.f) " % (x, y, z)
         navbar_string += "[Z] ↔ Y/Z rotation (%s) " % ztoggle_str
@@ -80,7 +80,11 @@ class AsciiMol:
             if 82 in keys or 114 in keys:  # R
                 self.sig_changed = self.renderer.reset_view()
             if 66 in keys or 98 in keys:  # B
-                self.renderer.btoggle = not self.renderer.btoggle
+                t = self.renderer.btoggle + 1
+                if t > 2:
+                    self.renderer.btoggle = 0
+                else:
+                    self.renderer.btoggle = t
                 self.sig_changed = True
             if 90 in keys or 122 in keys:  # Z
                 self.renderer.ztoggle = not self.renderer.ztoggle

@@ -11,7 +11,7 @@ class Renderer:
         self.resize(height, width)
 
         self.config = config
-        self.btoggle = len(self.config.bonds) > 0
+        self.btoggle = 0
         self.pos = np.array(self.config.coordinates)
 
         self.ztoggle = False
@@ -40,12 +40,9 @@ class Renderer:
             if i == j:
                 x, y, z = rot[i]
                 xp, yp = round(float(x) * self.f * self.zoom + mx), round(float(y) * self.zoom + my)
-                zbuf = self.content[yp, xp][2] if (yp, xp) in self.content else float("inf")
-                if 1 < xp < self.width - 2 and 1 < yp < self.height - 3 and float(z) < zbuf:
-                    self.content[yp, xp] = (self.config.symbols[i].upper(), self.config.colors[i], float(z))
+                self.buffer(yp, xp, self.config.symbols[i], self.config.colors[i], float(z))
             # else draw the bond with the labels at the end points
             else:
-                # Draw the two labels at the end points
                 xa, ya, za = rot[i]
                 xa = float(xa) * self.f * self.zoom + mx
                 ya = float(ya) * self.zoom + my
@@ -54,40 +51,39 @@ class Renderer:
                 yb = float(yb) * self.zoom + my
                 xap, yap = round(xa), round(ya)
                 xbp, ybp = round(xb), round(yb)
-                zbuf = self.content[yap, xap][2] if (yap, xap) in self.content else float("inf")
-                if 1 < xap < self.width - 2 and 1 < yap < self.height - 3 and float(za) < zbuf:
-                    self.content[yap, xap] = (self.config.symbols[i].upper(), self.config.colors[i], float(za))
-                zbuf = self.content[ybp, xbp][2] if (ybp, xbp) in self.content else float("inf")
-                if 1 < xbp < self.width - 2 and 1 < ybp < self.height - 3 and float(zb) < zbuf:
-                    self.content[ybp, xbp] = (self.config.symbols[j].upper(), self.config.colors[j], float(zb))
-                if not self.btoggle:
-                    continue
-                # Then start at xap+1 and go to xbp-1, drawing line segments
-                sy = -1 if ya > yb else 1
-                sx = -1 if xa > xb else 1
-                sz = -1 if za > zb else 1
-                dx = float((xb - xa) / (yb - ya)) if abs(yb - ya) > 0 else 0
-                dy = float((yb - ya) / (xb - xa)) if abs(xb - xa) > 0 else 0
-                dz = float((zb - za) / (xb - xa)) if abs(xb - xa) > 0 else 0
-                if abs(dy) <= 1:
-                    for k in range(1, abs(xap - xbp)):
-                        xk = xap + sx * k
-                        yk = round(float(ya) + sx * k * dy)
-                        zk = round((float(za) + sz * k * dz))
-                        zbuf = self.content[yk, xk][2] if (yk, xk) in self.content else float("inf")
-                        if 1 < xk < self.width - 2 and 1 < yk < self.height - 3 and float(zk) < zbuf:
+                # If desired, draw bonds by starting at xap+1 and going to xbp-1, drawing line segments
+                if self.btoggle < 2:
+                    sy = -1 if ya > yb else 1
+                    sx = -1 if xa > xb else 1
+                    sz = -1 if za > zb else 1
+                    dx = float((xb - xa) / (yb - ya)) if abs(yb - ya) > 0 else 0
+                    dy = float((yb - ya) / (xb - xa)) if abs(xb - xa) > 0 else 0
+                    if abs(dy) <= 1:
+                        dz = float((zb - za) / (xb - xa)) if abs(xb - xa) > 0 else 0
+                        for k in range(1, abs(xap - xbp)):
+                            xk = xap + sx * k
+                            yk = round(float(ya) + sx * k * dy)
+                            zk = round((float(za) + sz * k * dz))
                             col = self.config.colors[i] if k < abs(xap - xbp) / 2 else self.config.colors[j]
-                            self.content[yk, xk] = ("·", col, float(zk))
-                else:
-                    for k in range(1, abs(yap - ybp)):
-                        xk = round((float(xa) + sy * k * dx))
-                        yk = yap + sy * k
-                        zk = round((float(za) + sz * k * dz))
-                        zbuf = self.content[yk, xk][2] if (yk, xk) in self.content else float("inf")
-                        if 1 < xk < self.width - 2 and 1 < yk < self.height - 3 and float(zk) < zbuf:
+                            self.buffer(yk, xk, self.bond_ab(rot, i, j), col, float(zk))
+                    else:
+                        dz = float((zb - za) / (yb - ya)) if abs(yb - ya) > 0 else 0
+                        for k in range(1, abs(yap - ybp)):
+                            xk = round((float(xa) + sy * k * dx))
+                            yk = yap + sy * k
+                            zk = round((float(za) + sz * k * dz))
                             col = self.config.colors[i] if k < abs(yap - ybp) / 2 else self.config.colors[j]
-                            self.content[yk, xk] = ("·", col, float(zk))
+                            self.buffer(yk, xk, self.bond_ab(rot, i, j), col, float(zk))
+                # Draw the two labels at the end points
+                self.buffer(yap, xap, self.config.symbols[i], self.config.colors[i], float(za))
+                self.buffer(ybp, xbp, self.config.symbols[j], self.config.colors[j], float(zb))
         return True
+
+    def buffer(self, y, x, chars, color, zdepth):
+        for i, char in enumerate(chars):
+            zbuf = self.content[y, x + i][2] if (y, x + i) in self.content else float("-inf")
+            if 1 < x + i < self.width - 2 and 1 < y < self.height - 3 and float(zdepth) > zbuf:
+                self.content[y, x + i] = (char, color, zdepth)
 
     def toggle_auto_rotate(self, x=False, y=False, z=False):
         self.auto_rotate_flags[[x, y, z]] = not all(self.auto_rotate_flags[[x, y, z]])
@@ -227,3 +223,27 @@ class Renderer:
         # this is essentially just a basis transformation to the principle axes coordinate system.
         self.pos = np.einsum('ij,kj->ki', np.linalg.inv(t), self.pos)
         return True
+
+    def bond_ab(self, coordinates, i, j):
+        if self.btoggle == 0:
+            v = coordinates[j] - coordinates[i]
+            angle = np.arccos(v / np.linalg.norm(v))
+            # If angle towards z direction is small, use dot
+            if angle[2] < np.pi * 0.33:
+                return "·"
+            elif angle[2] > np.pi * 0.66:
+                return "-"
+            # Angle towards x is small or large if horizontal
+            if angle[0] < np.pi * 0.25 or angle[0] > np.pi * 0.75:
+                return "─"
+            # Angle towards y is small or large if vertical
+            elif angle[1] < np.pi * 0.25 or angle[1] > np.pi * 0.75:
+                return "│"
+            # For in between, check y direction
+            elif np.pi * 0.25 < angle[0] < np.pi * 0.5:
+                return "/" if v[1] < 0 else "\\"
+            elif np.pi * 0.5 < angle[0] < np.pi * 0.75:
+                return "/" if v[1] > 0 else "\\"
+        elif self.btoggle == 1:
+            return "·"
+        return " "
