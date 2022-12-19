@@ -42,7 +42,7 @@ class Renderer:
                 xp, yp = round(float(x) * self.f * self.zoom + mx), round(float(y) * self.zoom + my)
                 zbuf = self.content[yp, xp][2] if (yp, xp) in self.content else float("inf")
                 if 1 < xp < self.width - 2 and 1 < yp < self.height - 3 and float(z) < zbuf:
-                    self.content[yp, xp] = (self.config.symbols[0].upper(), self.config.colors[i], float(z))
+                    self.content[yp, xp] = (self.config.symbols[i].upper(), self.config.colors[i], float(z))
             # else draw the bond with the labels at the end points
             else:
                 # Draw the two labels at the end points
