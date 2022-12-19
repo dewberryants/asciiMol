@@ -6,7 +6,7 @@
 
 A basic molecule viewer written in Python, using curses; Thus, meant for linux terminals.
 
-This is an alpha version, featuring:
+Features:
 
 * Opening default cartesian .xyz files
 * Displaying one-letter atom labels
