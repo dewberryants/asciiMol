@@ -24,7 +24,7 @@ def handle_io(input_string: str):
             print("ERROR: Could not read '%s' as .xyz file." % input_string)
             if input_string[-4:] != ".xyz":
                 print("Consider installing the optional dependencies (ase, rdkit) for more formats!")
-            return False, None, None
+            return None, None, None
     elif use_ase and not use_rdkit:
         try:
             atms = read(input_string)
@@ -34,31 +34,31 @@ def handle_io(input_string: str):
                 atms = pubchem_atoms_search(smiles=input_string)
             except:
                 print("ERROR: Argument does not seem to be an existing file or SMILES string.")
-                return False, None, None
-        return True, atms.get_positions(), atms.get_chemical_symbols()
+                return None, None, None
+        return [len(atms)], atms.get_positions(), atms.get_chemical_symbols()
     elif use_rdkit and not use_ase:
         try:
             with open(input_string, "r") as handle:
                 return read_xyz(handle)
         except ValueError:
             print("ERROR: Could not read '%s' as xyz file." % input_string)
-            return False
+            return None, None, None
         except FileNotFoundError:
-            proceed, pos, sym = read_smiles(input_string)
-            if not proceed:
+            counts, pos, sym = read_smiles(input_string)
+            if not counts:
                 print("ERROR: File '%s' not found and not a valid SMILES code!" % input_string)
-                return False, None, None
-            return proceed, pos, sym
+                return None, None, None
+            return counts, pos, sym
     else:  # Using both
         try:
             atms = read(input_string)
-            return True, atms.get_positions(), atms.get_chemical_symbols()
+            return [len(atms)], atms.get_positions(), atms.get_chemical_symbols()
         except FileNotFoundError:
-            proceed, pos, sym = read_smiles(input_string)
-            if not proceed:
+            counts, pos, sym = read_smiles(input_string)
+            if not counts:
                 print("ERROR: File '%s' not found and not a valid SMILES code!" % input_string)
-                return False, None, None
-            return proceed, pos, sym
+                return None, None, None
+            return counts, pos, sym
         except KeyError:
             # ASE struggles to read XYZ files with invalid atom symbols
             # so try to read as xyz or fail
@@ -72,21 +72,36 @@ def handle_io(input_string: str):
 def read_smiles(smiles):
     mol = MolFromSmiles(smiles)
     if mol is None:
-        return False, None, None
+        return None, None, None
     mol = AddHs(mol)
     AllChem.EmbedMolecule(mol)
     try:
         return read_xyz_block(MolToXYZBlock(mol).strip().split("\n"))
     except ValueError:
-        return False, None, None
+        return None, None, None
 
 
 def read_xyz(handle):
     content = handle.readlines()
-    try:
-        return read_xyz_block(content)
-    except ValueError:
-        return False, None, None
+    pos = 0
+    atm_counts = list()
+    coordinates = list()
+    symbols = list()
+    while pos < len(content):
+        try:
+            atms = int(content[pos])
+        except ValueError:
+            print("XYZ FORMAT ERROR: Could not read atom number.")
+            return None, None, None
+        atm_counts.append(atms)
+        try:
+            _, p, s = read_xyz_block(content[pos:pos + atms + 2])
+        except ValueError:
+            return None, None, None
+        coordinates += p
+        symbols += s
+        pos += atms + 2
+    return atm_counts, coordinates, symbols
 
 
 def read_xyz_block(string_list):
@@ -104,4 +119,4 @@ def read_xyz_block(string_list):
         except IndexError:
             print("XYZ FORMAT ERROR: Line '%s' is not formatted correctly." % line)
             raise ValueError
-    return True, pos, sym
+    return [atms], pos, sym

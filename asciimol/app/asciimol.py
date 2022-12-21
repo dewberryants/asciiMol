@@ -40,6 +40,12 @@ class AsciiMol:
         navbar_string += "[WSAD] Navigate "
         navbar_string += "[T] Principle Axes "
         navbar_string += "[F1-3] Auto-Rotate"
+        if len(self.config.atm_counts) > 1:
+            try:
+                self.stdscr.addstr(curses.LINES - 4, 2, str(self.renderer.active_frame))
+            except curses.error:
+                pass
+            navbar_string += " [TAB] Next Frame"
         try:
             self.stdscr.addstr(curses.LINES - 2, 0, navbar_string)
         except curses.error:
@@ -88,6 +94,9 @@ class AsciiMol:
                 self.sig_changed = True
             if 90 in keys or 122 in keys:  # Z
                 self.renderer.ztoggle = not self.renderer.ztoggle
+                self.sig_changed = True
+            if 9 in keys:  # Tab
+                self.renderer.next_frame()
                 self.sig_changed = True
             if 81 in keys or 113 in keys:  # Q
                 return False
