@@ -215,7 +215,7 @@ class Renderer:
         self.pos -= center
         return True
 
-    def prinicple_axes(self):
+    def principle_axes(self):
         """
         Transform to principle axes of rotation
         """

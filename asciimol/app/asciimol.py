@@ -64,7 +64,7 @@ class AsciiMol:
             if 68 in keys or 100 in keys:  # D
                 self.sig_changed = self.renderer.navigate(dx=ceil(self.renderer.zoom))
             if 84 in keys or 116 in keys:  # T
-                self.sig_changed = self.renderer.prinicple_axes()
+                self.sig_changed = self.renderer.principle_axes()
             if curses.KEY_F1 in keys:
                 self.renderer.toggle_auto_rotate(x=True)
             if curses.KEY_F2 in keys:
