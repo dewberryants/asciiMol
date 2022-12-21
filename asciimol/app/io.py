@@ -16,7 +16,7 @@ except ImportError:
 
 
 def handle_io(input_string: str):
-    if not use_ase and not use_rdkit:
+    if (not use_ase and not use_rdkit) or input_string[-4:] == ".xyz":
         try:
             with open(input_string, "r") as handle:
                 return read_xyz(handle)
