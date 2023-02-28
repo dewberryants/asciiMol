@@ -33,7 +33,7 @@ def map_radii(a):
         if symbol in data_atoms:
             yield data_atoms[symbol][0]
         else:
-            yield 1.5
+            yield 0.5
 
 
 def map_colors(a):
@@ -42,4 +42,4 @@ def map_colors(a):
         if symbol in data_atoms:
             yield data_colors[data_atoms[symbol][1]]
         else:
-            yield 0.9, 0.9, 0.9, 0, 0
+            yield 0.9, 0.0, 0.9, 200, 5

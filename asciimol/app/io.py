@@ -59,6 +59,14 @@ def handle_io(input_string: str):
                 print("ERROR: File '%s' not found and not a valid SMILES code!" % input_string)
                 return False, None, None
             return proceed, pos, sym
+        except KeyError:
+            # ASE struggles to read XYZ files with invalid atom symbols
+            # so try to read as xyz or fail
+            try:
+                with open(input_string, "r") as handle:
+                    return read_xyz(handle)
+            except (ValueError, FileNotFoundError):
+                print("ERROR: ASE could not open '%s' and could not read '%s' as simple .xyz file." % input_string)
 
 
 def read_smiles(smiles):
