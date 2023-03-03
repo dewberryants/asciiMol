@@ -18,10 +18,12 @@ class Renderer:
         self.zoom = 1.0
         self.rot = np.identity(3)
         self.rotcounter = [0, 0, 0]
+
         self.reset_view()
         self.buffer_scene()
 
         self.auto_rotate_flags = np.array([False, False, False])
+        self.rot_cache = self.pos
 
     def buffer_scene(self):
         """
@@ -31,7 +33,7 @@ class Renderer:
         :return: True if nothing bad happened.
         """
         mx, my = self.m
-        rot = np.matmul(self.pos, self.rot)
+        rot = self.rot_cache
         self.clear()
         # Draw bonds
         for bond in self.config.bonds:
@@ -65,7 +67,8 @@ class Renderer:
                             yk = round(float(ya) + sx * k * dy)
                             zk = round((float(za) + sz * k * dz))
                             col = self.config.colors[i] if k < abs(xap - xbp) / 2 else self.config.colors[j]
-                            self.buffer(yk, xk, self.bond_ab(rot, i, j), col, float(zk))
+                            if 1 < xk < self.width - 2 and 1 < yk < self.height - 3:
+                                self.buffer(yk, xk, self.bond_ab(rot, i, j), col, float(zk))
                     else:
                         dz = float((zb - za) / (yb - ya)) if abs(yb - ya) > 0 else 0
                         for k in range(1, abs(yap - ybp)):
@@ -73,7 +76,8 @@ class Renderer:
                             yk = yap + sy * k
                             zk = round((float(za) + sz * k * dz))
                             col = self.config.colors[i] if k < abs(yap - ybp) / 2 else self.config.colors[j]
-                            self.buffer(yk, xk, self.bond_ab(rot, i, j), col, float(zk))
+                            if 1 < xk < self.width - 2 and 1 < yk < self.height - 3:
+                                self.buffer(yk, xk, self.bond_ab(rot, i, j), col, float(zk))
                 # Draw the two labels at the end points
                 self.buffer(yap, xap, self.config.symbols[i], self.config.colors[i], float(za))
                 self.buffer(ybp, xbp, self.config.symbols[j], self.config.colors[j], float(zb))
@@ -133,6 +137,7 @@ class Renderer:
             elif self.rotcounter[2] + 5 * z < 0:
                 self.rotcounter[2] += 360
             self.rotcounter[2] += 5 * z
+        self.rot_cache = np.matmul(self.pos, self.rot)
         return abs(x) > 0 or abs(y) > 0 or abs(z) > 0
 
     def navigate(self, dx=0, dy=0):
@@ -158,6 +163,7 @@ class Renderer:
         self.m = round((self.width - 2) / 2), round((self.height - 2) / 2)
         self.pos = np.array(self.config.coordinates)
         self.center()
+        self.rot_cache = self.pos
         dx = np.max(self.pos[:, 0]) - np.min(self.pos[:, 0])
         dy = np.max(self.pos[:, 1]) - np.min(self.pos[:, 1])
         fx = 0.9 * self.m[0] / (2.25 * dx)
