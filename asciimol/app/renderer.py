@@ -12,7 +12,9 @@ class Renderer:
 
         self.config = config
         self.btoggle = 0
-        self.pos = np.array(self.config.coordinates)
+        self.active_frame = 0
+        self.offset = 0
+        self.pos = np.array(self.config.coordinates[:self.config.atm_counts[0]])
 
         self.ztoggle = False
         self.zoom = 1.0
@@ -36,13 +38,13 @@ class Renderer:
         rot = self.rot_cache
         self.clear()
         # Draw bonds
-        for bond in self.config.bonds:
+        for bond in self.config.bonds[self.active_frame]:
             i, j = bond
             # if bond is (i, j) with i == j, just draw the label (no bonds)
             if i == j:
                 x, y, z = rot[i]
                 xp, yp = round(float(x) * self.f * self.zoom + mx), round(float(y) * self.zoom + my)
-                self.buffer(yp, xp, self.config.symbols[i], self.config.colors[i], float(z))
+                self.buffer(yp, xp, self.config.symbols[i + self.offset], self.config.colors[i + self.offset], float(z))
             # else draw the bond with the labels at the end points
             else:
                 xa, ya, za = rot[i]
@@ -66,7 +68,8 @@ class Renderer:
                             xk = xap + sx * k
                             yk = round(float(ya) + sx * k * dy)
                             zk = round((float(za) + sz * k * dz))
-                            col = self.config.colors[i] if k < abs(xap - xbp) / 2 else self.config.colors[j]
+                            col = self.config.colors[i + self.offset] if k < abs(xap - xbp) / 2 \
+                                else self.config.colors[j + self.offset]
                             if 1 < xk < self.width - 2 and 1 < yk < self.height - 3:
                                 self.buffer(yk, xk, self.bond_ab(rot, i, j), col, float(zk))
                     else:
@@ -75,12 +78,13 @@ class Renderer:
                             xk = round((float(xa) + sy * k * dx))
                             yk = yap + sy * k
                             zk = round((float(za) + sz * k * dz))
-                            col = self.config.colors[i] if k < abs(yap - ybp) / 2 else self.config.colors[j]
+                            col = self.config.colors[i + self.offset] if k < abs(yap - ybp) / 2 \
+                                else self.config.colors[j + self.offset]
                             if 1 < xk < self.width - 2 and 1 < yk < self.height - 3:
                                 self.buffer(yk, xk, self.bond_ab(rot, i, j), col, float(zk))
                 # Draw the two labels at the end points
-                self.buffer(yap, xap, self.config.symbols[i], self.config.colors[i], float(za))
-                self.buffer(ybp, xbp, self.config.symbols[j], self.config.colors[j], float(zb))
+                self.buffer(yap, xap, self.config.symbols[i + self.offset], self.config.colors[i + self.offset], float(za))
+                self.buffer(ybp, xbp, self.config.symbols[j + self.offset], self.config.colors[j + self.offset], float(zb))
         return True
 
     def buffer(self, y, x, chars, color, zdepth):
@@ -137,7 +141,7 @@ class Renderer:
             elif self.rotcounter[2] + 5 * z < 0:
                 self.rotcounter[2] += 360
             self.rotcounter[2] += 5 * z
-        self.rot_cache = np.matmul(self.pos, self.rot)
+        self.update_rot_cache()
         return abs(x) > 0 or abs(y) > 0 or abs(z) > 0
 
     def navigate(self, dx=0, dy=0):
@@ -211,7 +215,7 @@ class Renderer:
         self.pos -= center
         return True
 
-    def prinicple_axes(self):
+    def principle_axes(self):
         """
         Transform to principle axes of rotation
         """
@@ -228,6 +232,7 @@ class Renderer:
         # Einstein Summation: for the 3x3 matrix t, multiply row j with each of the k rows in pos and sum
         # this is essentially just a basis transformation to the principle axes coordinate system.
         self.pos = np.einsum('ij,kj->ki', np.linalg.inv(t), self.pos)
+        self.update_rot_cache()
         return True
 
     def bond_ab(self, coordinates, i, j):
@@ -253,3 +258,16 @@ class Renderer:
         elif self.btoggle == 1:
             return "·"
         return " "
+
+    def next_frame(self):
+        if self.active_frame == len(self.config.atm_counts) - 1:
+            self.active_frame = 0
+        else:
+            self.active_frame += 1
+        self.offset = sum(self.config.atm_counts[:self.active_frame])
+        self.pos = np.array(
+            self.config.coordinates[self.offset:self.offset + self.config.atm_counts[self.active_frame]])
+        self.update_rot_cache()
+
+    def update_rot_cache(self):
+        self.rot_cache = np.matmul(self.pos, self.rot)
