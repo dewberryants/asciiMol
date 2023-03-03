@@ -266,3 +266,4 @@ class Renderer:
         self.offset = sum(self.config.atm_counts[:self.active_frame])
         self.pos = np.array(
             self.config.coordinates[self.offset:self.offset + self.config.atm_counts[self.active_frame]])
+        self.rot_cache = np.matmul(self.pos, self.rot)
