@@ -9,11 +9,11 @@ A basic molecule viewer written in Python, using curses; Thus, meant for linux t
 Features:
 
 * Opening default cartesian .xyz files
-* Displaying one-letter atom labels
 * Orthographic view
 * Navigation
 * Zoom, Rotation, Auto-Rotation
 * Bond detection and display
+* Support for simple .xyz trajectories
 * Optional integration of ASE and RDKit pypi packages for more formats and SMILES
 
 ## Installation
