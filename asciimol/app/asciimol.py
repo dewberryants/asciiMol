@@ -96,8 +96,9 @@ class AsciiMol:
                 self.renderer.ztoggle = not self.renderer.ztoggle
                 self.sig_changed = True
             if 9 in keys:  # Tab
-                self.renderer.next_frame()
-                self.sig_changed = True
+                if len(self.config.atm_counts) > 1:
+                    self.renderer.next_frame()
+                    self.sig_changed = True
             if 81 in keys or 113 in keys:  # Q
                 return False
         return True

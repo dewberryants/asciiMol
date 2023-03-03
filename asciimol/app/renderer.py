@@ -141,7 +141,7 @@ class Renderer:
             elif self.rotcounter[2] + 5 * z < 0:
                 self.rotcounter[2] += 360
             self.rotcounter[2] += 5 * z
-        self.rot_cache = np.matmul(self.pos, self.rot)
+        self.update_rot_cache()
         return abs(x) > 0 or abs(y) > 0 or abs(z) > 0
 
     def navigate(self, dx=0, dy=0):
@@ -232,6 +232,7 @@ class Renderer:
         # Einstein Summation: for the 3x3 matrix t, multiply row j with each of the k rows in pos and sum
         # this is essentially just a basis transformation to the principle axes coordinate system.
         self.pos = np.einsum('ij,kj->ki', np.linalg.inv(t), self.pos)
+        self.update_rot_cache()
         return True
 
     def bond_ab(self, coordinates, i, j):
@@ -266,4 +267,7 @@ class Renderer:
         self.offset = sum(self.config.atm_counts[:self.active_frame])
         self.pos = np.array(
             self.config.coordinates[self.offset:self.offset + self.config.atm_counts[self.active_frame]])
+        self.update_rot_cache()
+
+    def update_rot_cache(self):
         self.rot_cache = np.matmul(self.pos, self.rot)
