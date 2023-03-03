@@ -25,7 +25,8 @@ class Config:
                             help='Specify an .xyz file or a SMILES string (e.g., CC) to open and display.')
         opts = parser.parse_args()
         self.atm_counts, self.coordinates, self.symbols = handle_io(opts.XYZFILE)
-        self._setup_bonds()
+        if self.atm_counts:
+            self._setup_bonds()
         return self.atm_counts
 
     def post_setup(self):

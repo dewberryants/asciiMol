@@ -44,7 +44,7 @@ def handle_io(input_string: str):
                     print("ERROR: File '%s' not found and not a valid SMILES code!" % input_string)
                     return None, None, None
                 return counts, pos, sym
-        else:  # Using both
+        elif use_ase and use_rdkit:  # Using both
             try:
                 atms = read(input_string)
                 return [len(atms)], atms.get_positions(), atms.get_chemical_symbols()
@@ -62,9 +62,10 @@ def handle_io(input_string: str):
                         return read_xyz(handle)
                 except (ValueError, FileNotFoundError):
                     print("ERROR: ASE could not open '%s' and could not read '%s' as simple .xyz file." % input_string)
-        print("ERROR: Could not read '%s' as .xyz file." % input_string)
-        if input_string[-4:] != ".xyz":
-            print("Consider installing the optional dependencies (ase, rdkit) for more formats!")
+        else: # Using neither
+            print("ERROR: Could not read '%s' as .xyz file." % input_string)
+            if input_string[-4:] != ".xyz":
+                print("Consider installing the optional dependencies (ase, rdkit) for more formats!")
             return None, None, None
 
 
@@ -87,16 +88,9 @@ def read_xyz(handle):
     coordinates = list()
     symbols = list()
     while pos < len(content):
-        try:
-            atms = int(content[pos])
-        except ValueError:
-            print("XYZ FORMAT ERROR: Could not read atom number.")
-            return None, None, None
+        atms = int(content[pos])
         atm_counts.append(atms)
-        try:
-            _, p, s = read_xyz_block(content[pos:pos + atms + 2])
-        except ValueError:
-            return None, None, None
+        _, p, s = read_xyz_block(content[pos:pos + atms + 2])
         coordinates += p
         symbols += s
         pos += atms + 2
