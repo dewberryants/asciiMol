@@ -101,7 +101,7 @@ def read_xyz(handle):
 def read_xyz_block(string_list):
     try:
         tmp = string_list[0].split()
-        atms = int(tmp)
+        atms = int(tmp[0])
     except ValueError:
         print("XYZ FORMAT ERROR: Could not read atom number.")
         raise ValueError
