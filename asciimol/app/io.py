@@ -88,7 +88,8 @@ def read_xyz(handle):
     coordinates = list()
     symbols = list()
     while pos < len(content):
-        atms = int(content[pos])
+        tmp = content[pos].split()
+        atms = int(tmp[0])
         atm_counts.append(atms)
         _, p, s = read_xyz_block(content[pos:pos + atms + 2])
         coordinates += p
@@ -99,7 +100,8 @@ def read_xyz(handle):
 
 def read_xyz_block(string_list):
     try:
-        atms = int(string_list[0])
+        tmp = string_list[0].split()
+        atms = int(tmp)
     except ValueError:
         print("XYZ FORMAT ERROR: Could not read atom number.")
         raise ValueError
