@@ -259,14 +259,17 @@ class Renderer:
             return "·"
         return " "
 
-    def next_frame(self):
-        if self.active_frame == len(self.config.atm_counts) - 1:
-            self.active_frame = 0
+    def change_frame(self, step=1):
+        if self.active_frame + step > len(self.config.atm_counts) - 1:
+            self.active_frame = self.active_frame + step - len(self.config.atm_counts)
+        elif self.active_frame + step < 0:
+            self.active_frame = self.active_frame + step + len(self.config.atm_counts)
         else:
-            self.active_frame += 1
+            self.active_frame += step
         self.offset = sum(self.config.atm_counts[:self.active_frame])
         self.pos = np.array(
             self.config.coordinates[self.offset:self.offset + self.config.atm_counts[self.active_frame]])
+        self.center()
         self.update_rot_cache()
 
     def update_rot_cache(self):

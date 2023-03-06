@@ -97,7 +97,11 @@ class AsciiMol:
                 self.sig_changed = True
             if 9 in keys:  # Tab
                 if len(self.config.atm_counts) > 1:
-                    self.renderer.next_frame()
+                    self.renderer.change_frame(1)
+                    self.sig_changed = True
+            if curses.KEY_BTAB in keys:
+                if len(self.config.atm_counts) > 1:
+                    self.renderer.change_frame(-1)
                     self.sig_changed = True
             if 81 in keys or 113 in keys:  # Q
                 return False
