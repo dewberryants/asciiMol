@@ -7,25 +7,26 @@ class Renderer:
         self.width = width
         self.content = dict()
         self.m = None
-        self.f = 1.0
+        self.f = None
         self.resize(height, width)
 
         self.config = config
         self.btoggle = 0
         self.active_frame = 0
         self.offset = 0
+
         self.pos = np.array(self.config.coordinates[:self.config.atm_counts[0]])
+        self.org_center = 1.0 / self.pos.shape[0] * np.sum(self.pos, axis=0)
+        self.zoom = None
+        self.rot = None
+        self.rotcounter = None
+        self.rot_cache = None
+        self.reset_view()
 
         self.ztoggle = False
-        self.zoom = 1.0
-        self.rot = np.identity(3)
-        self.rotcounter = [0, 0, 0]
-
-        self.reset_view()
-        self.buffer_scene()
-
         self.auto_rotate_flags = np.array([False, False, False])
-        self.rot_cache = self.pos
+
+        self.buffer_scene()
 
     def buffer_scene(self):
         """
@@ -165,15 +166,19 @@ class Renderer:
         self.rotcounter = [0, 0, 0]
         self.rot = np.identity(3)
         self.m = round((self.width - 2) / 2), round((self.height - 2) / 2)
-        self.pos = np.array(self.config.coordinates)
-        self.center()
+        self.refresh_coordinates()
         self.rot_cache = self.pos
         dx = np.max(self.pos[:, 0]) - np.min(self.pos[:, 0])
         dy = np.max(self.pos[:, 1]) - np.min(self.pos[:, 1])
-        fx = 0.9 * self.m[0] / (2.25 * dx)
+        fx = 0.9 * self.m[0] / (self.f * dx)
         fy = 0.9 * self.m[1] / dy
         self.zoom = fx if fx > fy else fy
         return True
+
+    def refresh_coordinates(self):
+        self.pos = np.array(
+            self.config.coordinates[self.offset:self.offset + self.config.atm_counts[self.active_frame]])
+        self.pos -= self.org_center
 
     def resize(self, height, width):
         """
@@ -191,7 +196,7 @@ class Renderer:
         """
         Clear the canvas and redraw the border.
         """
-        self.content = dict()
+        self.content.clear()
         for i in range(self.height - 2):
             for j in range(self.width):
                 if i == 0 and j == 0:
@@ -207,19 +212,10 @@ class Renderer:
                 elif i == self.height - 3 and j == self.width - 1:
                     self.content[i, j] = ("┘", 0, -1)
 
-    def center(self):
-        """
-        Move the internal coordinate matrix to the center of coordinates
-        """
-        center = 1.0 / self.pos.shape[0] * np.sum(self.pos, axis=0)
-        self.pos -= center
-        return True
-
     def principle_axes(self):
         """
         Transform to principle axes of rotation
         """
-        self.center()
         x, y, z = np.transpose(self.pos)
         xx = np.sum(y * y + z * z)
         yy = np.sum(x * x + z * z)
@@ -267,9 +263,7 @@ class Renderer:
         else:
             self.active_frame += step
         self.offset = sum(self.config.atm_counts[:self.active_frame])
-        self.pos = np.array(
-            self.config.coordinates[self.offset:self.offset + self.config.atm_counts[self.active_frame]])
-        self.center()
+        self.refresh_coordinates()
         self.update_rot_cache()
 
     def update_rot_cache(self):
