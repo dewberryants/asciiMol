@@ -4,7 +4,8 @@
 
 ![Screenshots](https://raw.githubusercontent.com/dewberryants/asciiMol/master/docs/animation.gif)
 
-A basic molecule viewer written in Python, using curses; Thus, meant for linux terminals.
+A basic molecule viewer written in Python, using the ncurses library. Works on any compatible terminal (even on Windows using 
+windows-curses).
 
 Features:
 
