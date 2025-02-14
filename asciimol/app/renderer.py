@@ -171,7 +171,7 @@ class Renderer:
         d = np.max(np.max(self.pos, axis=0) - np.min(self.pos, axis=0))
         if d < 1.:
             d = 1.
-        self.zoom = 0.8 * np.min(self.m) / d
+        self.zoom = np.min(self.m) / d
         return True
 
     def refresh_coordinates(self):
