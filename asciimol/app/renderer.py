@@ -168,11 +168,10 @@ class Renderer:
         self.m = round((self.width - 2) / 2), round((self.height - 2) / 2)
         self.refresh_coordinates()
         self.rot_cache = self.pos
-        dx = np.max(self.pos[:, 0]) - np.min(self.pos[:, 0])
-        dy = np.max(self.pos[:, 1]) - np.min(self.pos[:, 1])
-        fx = 0.9 * self.m[0] / (self.f * dx)
-        fy = 0.9 * self.m[1] / dy
-        self.zoom = fx if fx > fy else fy
+        d = np.max(np.max(self.pos, axis=0) - np.min(self.pos, axis=0))
+        if d < 1.:
+            d = 1.
+        self.zoom = 0.8 * np.min(self.m) / d
         return True
 
     def refresh_coordinates(self):
