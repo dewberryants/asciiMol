@@ -29,7 +29,7 @@ directory is part of your $PATH.)
 You can also run
 
 ```sh
-pip install asciimol[formats,smiles]
+pip install 'asciimol[formats,smiles]'
 ```
 
 to automatically install ASE for formats and RDKit for smiles.

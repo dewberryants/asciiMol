@@ -10,7 +10,7 @@ packages = find_packages()
 
 setup(
     name='asciimol',
-    version='1.2.4',
+    version='1.2.5',
     description='An ASCII molecule viewer.',
     long_description=readme,
     long_description_content_type="text/markdown",
@@ -30,6 +30,6 @@ setup(
     entry_points={"console_scripts": ["asciimol = asciimol:run_asciimol"]},
     extras_require={
         'formats': ['ase'],
-        'smiles': ['rdkit-pypi']
+        'smiles': ['rdkit']
     }
 )
