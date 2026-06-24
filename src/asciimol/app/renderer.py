@@ -233,23 +233,25 @@ class Renderer:
     def bond_ab(self, coordinates, i, j):
         if self.btoggle == 0:
             v = coordinates[j] - coordinates[i]
-            angle = np.arccos(v / np.linalg.norm(v))
-            # If angle towards z direction is small, use dot
-            if angle[2] < np.pi * 0.33:
+            v_norm = np.linalg.norm(v)
+            if v_norm == 0:
+                return " "
+
+            if abs(v[2]) / v_norm > 0.7:
                 return "·"
-            elif angle[2] > np.pi * 0.66:
-                return "-"
-            # Angle towards x is small or large if horizontal
-            if angle[0] < np.pi * 0.25 or angle[0] > np.pi * 0.75:
+
+            dx = v[0] * self.f * self.zoom
+            dy = v[1] * self.zoom
+
+            if abs(dx) > abs(dy) * 2.0:
                 return "─"
-            # Angle towards y is small or large if vertical
-            elif angle[1] < np.pi * 0.25 or angle[1] > np.pi * 0.75:
+            elif abs(dy) > abs(dx) * 2.0:
                 return "│"
-            # For in between, check y direction
-            elif np.pi * 0.25 < angle[0] < np.pi * 0.5:
-                return "/" if v[1] < 0 else "\\"
-            elif np.pi * 0.5 < angle[0] < np.pi * 0.75:
-                return "/" if v[1] > 0 else "\\"
+            else:
+                if dx * dy > 0:
+                    return "\\"
+                else:
+                    return "/"
         elif self.btoggle == 1:
             return "·"
         return " "
