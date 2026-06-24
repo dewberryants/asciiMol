@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "AsciiMol"
-version = "1.2.6"
+version = "1.2.7"
 authors = [
     { name="Dominik Behrens", email="dewberryants@gmail.com" },
 ]
