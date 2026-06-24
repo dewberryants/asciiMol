@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools >= 77.03"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "AsciiMol"
+version = "1.2.6"
+authors = [
+    { name="Dominik Behrens", email="dewberryants@gmail.com" },
+]
+description="An ASCII molecule viewer."
+readme="README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Chemistry"
+]
+license = "BSD-2-CLAUSE"
+license-files = ["LICENSE"]
+dependencies = [
+    "numpy",
+    "windows-curses ; platform_system == 'Windows'"
+]
+
+[project.optional-dependencies]
+smiles = ["rdkit"]
+formats = ["ase"]
+
+[project.urls]
+Homepage = "https://github.com/dewberryants/asciiMol"
+Issues = "https://github.com/dewberryants/asciiMol/issues"
+
+[project.scripts]
+asciimol = "asciimol.app.asciimol:run_asciimol"

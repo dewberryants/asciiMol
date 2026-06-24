@@ -99,12 +99,14 @@ def read_xyz(handle):
 
 
 def read_xyz_block(string_list):
+    tmp = ""
     try:
         tmp = string_list[0].split()
         atms = int(tmp[0])
     except ValueError:
-        print("XYZ FORMAT ERROR: Could not read atom number.")
-        raise ValueError
+        raise ValueError("Could not read atom number from '%s' in xyz block!" % tmp[0])
+    if len(string_list) != atms + 2:
+        raise ValueError("Mismatched atom number in xyz block? Should be %d, but are %d." % (atms, len(string_list)))
     pos, sym = [], []
     for line in string_list[2:atms + 2]:
         work = line.strip().split()
@@ -112,6 +114,5 @@ def read_xyz_block(string_list):
             sym.append(work[0])
             pos.append([float(work[1]), float(work[2]), float(work[3])])
         except IndexError:
-            print("XYZ FORMAT ERROR: Line '%s' is not formatted correctly." % line)
-            raise ValueError
+            raise ValueError("Line '%s' is not formatted correctly." % line)
     return [atms], pos, sym

@@ -163,3 +163,8 @@ class AsciiMol:
         if self.config.parse():
             curses.wrapper(self.main_loop)
         return 0
+
+
+def run_asciimol():
+    app = AsciiMol()
+    app.run()
