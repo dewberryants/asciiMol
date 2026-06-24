@@ -62,6 +62,7 @@ def handle_io(input_string: str):
                         return read_xyz(handle)
                 except (ValueError, FileNotFoundError):
                     print("ERROR: ASE could not open '%s' and could not read '%s' as simple .xyz file." % input_string)
+                    return None, None, None
         else: # Using neither
             print("ERROR: Could not read '%s' as .xyz file." % input_string)
             if input_string[-4:] != ".xyz":
