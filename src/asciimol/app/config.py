@@ -38,19 +38,7 @@ class Config:
         self.bonds = list()
         offset = 0
         for n, counts in enumerate(self.atm_counts):
-            radii = np.array(list(map_radii(self.symbols[offset:offset + counts])), dtype='float32')
-            xyz = np.array(self.coordinates[offset:offset + counts], dtype='float32')
-            rsq = (radii[..., np.newaxis] + radii + 0.41) ** 2
-            dx = xyz[:, 0, np.newaxis] - xyz[:, 0]
-            dy = xyz[:, 1, np.newaxis] - xyz[:, 1]
-            dz = xyz[:, 2, np.newaxis] - xyz[:, 2]
-            dsq = dx ** 2 + dy ** 2 + dz ** 2
-            np.fill_diagonal(dsq, np.inf)
-            bonds = np.argwhere(np.triu(dsq) < np.triu(rsq))
-            bound = np.isin(np.arange(counts), bonds[:, 0]) + \
-                np.isin(np.arange(counts), bonds[:, 1])
-            unbound = np.hstack((np.argwhere(bound == 0), np.argwhere(bound == 0)))
-            self.bonds.append(np.vstack((bonds, unbound)))
+            self.bonds.append(_setup_bond_block(self.symbols, self.coordinates, offset, counts))
             offset += counts
 
     def _setup_colors(self):
@@ -58,3 +46,19 @@ class Config:
             return
         colors = list(map_colors(self.symbols))
         self.colors = list(init_curses_color_pairs(colors))
+
+
+def _setup_bond_block(symbols, coordinates, offset, counts):
+    radii = np.array(list(map_radii(symbols[offset:offset + counts])), dtype='float32')
+    xyz = np.array(coordinates[offset:offset + counts], dtype='float32')
+    rsq = (radii[..., np.newaxis] + radii + 0.41) ** 2
+    dx = xyz[:, 0, np.newaxis] - xyz[:, 0]
+    dy = xyz[:, 1, np.newaxis] - xyz[:, 1]
+    dz = xyz[:, 2, np.newaxis] - xyz[:, 2]
+    dsq = dx ** 2 + dy ** 2 + dz ** 2
+    np.fill_diagonal(dsq, np.inf)
+    bonds = np.argwhere(np.triu(dsq) < np.triu(rsq))
+    bound = np.isin(np.arange(counts), bonds[:, 0]) + \
+            np.isin(np.arange(counts), bonds[:, 1])
+    unbound = np.hstack((np.argwhere(bound == 0), np.argwhere(bound == 0)))
+    return np.vstack((bonds, unbound))

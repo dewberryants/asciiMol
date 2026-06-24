@@ -1,6 +1,6 @@
 import unittest
 
-from src.asciimol.app.io import read_xyz_block
+from asciimol.app.io import read_xyz_block
 
 class TestIO(unittest.TestCase):
     def test_read_xyz_block_valid(self):
