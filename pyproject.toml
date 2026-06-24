@@ -33,3 +33,6 @@ Issues = "https://github.com/dewberryants/asciiMol/issues"
 
 [project.scripts]
 asciimol = "asciimol.app.asciimol:run_asciimol"
+
+[tool.setuptools.package-data]
+"asciimol.app.data" = ["atom_data"]
